@@ -1,11 +1,11 @@
-  // ====== PART 1/2 ======
-  import { useState, useEffect } from "react";
-  import { db } from "../firebase";
-  import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-  import { sendDiscordNotification } from "../utils/discordWebhook";
+// components/InvestMine.jsx — FULL VERSION (MOBILE 2x4, DESKTOP WITH MID PNG ROW)
+import { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { sendDiscordNotification } from "../utils/discordWebhook";
 
-  export default function InvestMine({ user }) {
-    // Wallet / invest states
+export default function InvestMine({ user }) {
+  // Wallet / invest states
   const [network, setNetwork] = useState("");
   const [usdtWallet, setUsdtWallet] = useState("");
   const [tokenWallet, setTokenWallet] = useState("");
@@ -14,7 +14,7 @@
   const [fade, setFade] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Offers
+  // Offers / investment state
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [offerLocked, setOfferLocked] = useState(false);
@@ -28,32 +28,32 @@
   const [showMiningReset, setShowMiningReset] = useState(false);
   const [miningCompleted, setMiningCompleted] = useState(false);
 
-  // Referral bonus
+  // Referral bonus (time reduction)
   const [referralBonuses, setReferralBonuses] = useState(0);
 
-  // Copied tooltip
+  // Copy tooltip
   const [copiedKey, setCopiedKey] = useState(null);
 
-  // Payment Addresses visibility
+  // Payment address accordion
   const [showAddresses, setShowAddresses] = useState(false);
 
-  // Last activity summaries (NEW)
+  // Last activity summaries
   const [lastInvestSummary, setLastInvestSummary] = useState(null);
   const [lastMiningSummary, setLastMiningSummary] = useState(null);
 
-  // Offers list (final live durations)
-const offers = [
-  { id: 1, range: "50$", tokens: 200, durationHours: 24, image: "/images/131.png", displayTime: "24h" },
-  { id: 2, range: "100$", tokens: 400, durationHours: 24, image: "/images/130.png", displayTime: "24h" },
-  { id: 3, range: "200$", tokens: 800, durationHours: 36, image: "/images/129.png", displayTime: "36h" },
-  { id: 4, range: "400$", tokens: 1600, durationHours: 36, image: "/images/128.png", displayTime: "36h" },
-  { id: 5, range: "800$", tokens: 3200, durationHours: 48, image: "/images/127.png", displayTime: "48h" },
-  { id: 6, range: "1000$", tokens: 4000, durationHours: 48, image: "/images/124.png", displayTime: "48h" },
-  { id: 7, range: "2000$", tokens: 8000, durationHours: 60, image: "/images/125.png", displayTime: "60h" },
-  { id: 8, range: "5000$", tokens: 25000, durationHours: 60, image: "/images/123.png", displayTime: "60h" },
-];
+  // OFFERS (unchanged logic)
+  const offers = [
+    { id: 1, range: "50$", tokens: 200, durationHours: 24, image: "/images/131.png", displayTime: "24h" },
+    { id: 2, range: "100$", tokens: 400, durationHours: 24, image: "/images/130.png", displayTime: "24h" },
+    { id: 3, range: "200$", tokens: 800, durationHours: 36, image: "/images/129.png", displayTime: "36h" },
+    { id: 4, range: "400$", tokens: 1600, durationHours: 36, image: "/images/128.png", displayTime: "36h" },
+    { id: 5, range: "800$", tokens: 3200, durationHours: 48, image: "/images/127.png", displayTime: "48h" },
+    { id: 6, range: "1000$", tokens: 4000, durationHours: 48, image: "/images/124.png", displayTime: "48h" },
+    { id: 7, range: "2000$", tokens: 8000, durationHours: 60, image: "/images/125.png", displayTime: "60h" },
+    { id: 8, range: "5000$", tokens: 25000, durationHours: 60, image: "/images/123.png", displayTime: "60h" },
+  ];
 
-
+  // MINING TIERS (unchanged logic)
   const miningTiers = [
     { amount: 200, durationSecs: 345600, fee: 20, displayTime: "4 days" },
     { amount: 400, durationSecs: 345600, fee: 40, displayTime: "4 days" },
@@ -80,30 +80,39 @@ const offers = [
     }
   };
 
+  // ===================== EFFECTS =====================
+
+  // Mobile check + fade sync
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     setFade(true);
-    setTimeout(() => setFade(false), 5000);
-    return () => window.removeEventListener("resize", checkMobile);
+    const t = setTimeout(() => setFade(false), 5000);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      clearTimeout(t);
+    };
   }, []);
 
+  // Load user data (wallets, offers, mining, summaries)
   useEffect(() => {
-  if (!user) return;
-  const ref = doc(db, "users", user.uid);
-  const loadData = async () => {
-    try {
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
+    if (!user) return;
+    const ref = doc(db, "users", user.uid);
+
+    const loadData = async () => {
+      try {
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return;
         const d = snap.data();
+
         setNetwork(d.network || "");
         setUsdtWallet(d.usdtWallet || "");
         setTokenWallet(d.tokenWallet || "");
         setWalletsLocked(!!d.usdtWallet && !!d.tokenWallet);
         setReferralBonuses(d.referralBonuses || 0);
 
-        // Restore invest progress
+        // Restore invest
         if (d.selectedOffer && d.offerEndTime) {
           const remain = d.offerEndTime - Date.now();
           setSelectedOffer(d.selectedOffer);
@@ -116,10 +125,12 @@ const offers = [
           }
         }
 
-        // Restore mining progress
+        // Restore mining
         if (d.mining && d.mining.miningEndTime) {
           const remainM = d.mining.miningEndTime - Date.now();
-          const tierIndex = miningTiers.findIndex((t) => t.amount === d.mining.tier);
+          const tierIndex = miningTiers.findIndex(
+            (t) => t.amount === d.mining.tier
+          );
           if (tierIndex >= 0) setSliderIndex(tierIndex);
           if (remainM > 0) {
             setMiningTimeLeft(remainM);
@@ -130,78 +141,87 @@ const offers = [
           }
         }
 
-        // ✅ Restore completion messages even after refresh
+        // Restore completion messages
         if (d.investCompleted) {
           setInvestCompleted(true);
           setShowResetButton(true);
-          setStatus("✅ Investment finished successfully. Your tokens will be received within 12 hours.");
+          setStatus(
+            "✅ Investment finished successfully. Your tokens will be received within 12 hours."
+          );
         }
 
         if (d.miningCompleted) {
           setMiningCompleted(true);
           setShowMiningReset(true);
-          setStatus("✅ Mining finished successfully. Please ensure your fee is paid; your tokens will be received within 12 hours.");
+          setStatus(
+            "✅ Mining finished successfully. Please ensure your fee is paid; your tokens will be received within 12 hours."
+          );
         }
 
-        // ✅ Load last summaries (always run)
+        // Last summaries
         if (d.lastInvestSummary) setLastInvestSummary(d.lastInvestSummary);
         if (d.lastMiningSummary) setLastMiningSummary(d.lastMiningSummary);
+      } catch (e) {
+        console.error("load error", e);
       }
-    } catch (e) {
-      console.error("load error", e);
-    }
-  };
-  loadData();
-}, [user]);
+    };
 
+    loadData();
+  }, [user]);
 
-  // ------------- SAVE WALLET -------------
+  // ===================== HANDLERS =====================
+
   const handleSaveWallets = async () => {
     if (!user) return setStatus("⚠️ Not logged in");
-    if (!network || !usdtWallet || !tokenWallet) return setStatus("⚠️ Fill all wallet fields");
+    if (!network || !usdtWallet || !tokenWallet)
+      return setStatus("⚠️ Fill all wallet fields");
+
     try {
-      await setDoc(doc(db, "users", user.uid), { network, usdtWallet, tokenWallet }, { merge: true });
+      await setDoc(
+        doc(db, "users", user.uid),
+        { network, usdtWallet, tokenWallet },
+        { merge: true }
+      );
       setWalletsLocked(true);
       setStatus("✅ Wallets saved");
-    } catch { setStatus("❌ Save error"); }
+    } catch {
+      setStatus("❌ Save error");
+    }
   };
+
   const handleEditWallets = () => setWalletsLocked(false);
 
-  // ------------- INVEST CONFIRM -------------
-const handleUpdateWalletsAndOffer = async () => {
-  if (!user) return setStatus("⚠️ Login required");
-  if (!walletsLocked) return setStatus("⚠️ Save wallets first");
-  if (!selectedOffer) return setStatus("⚠️ Choose an offer");
+  const handleUpdateWalletsAndOffer = async () => {
+    if (!user) return setStatus("⚠️ Login required");
+    if (!walletsLocked) return setStatus("⚠️ Save wallets first");
+    if (!selectedOffer) return setStatus("⚠️ Choose an offer");
 
-  try {
-    // Calculate duration and referral bonus reduction
-    let dur = selectedOffer.durationHours * 3600 * 1000;
-    const reduction = Math.min(referralBonuses * 10, 20);
-    if (reduction > 0) dur *= 1 - reduction / 100;
-    const endTime = Date.now() + dur;
+    try {
+      let dur = selectedOffer.durationHours * 3600 * 1000;
+      const reduction = Math.min(referralBonuses * 10, 20);
+      if (reduction > 0) dur *= 1 - reduction / 100;
 
-    // Save investment details to Firestore
-    await setDoc(
-      doc(db, "users", user.uid),
-      {
-        selectedOffer,
-        offerEndTime: endTime,
-        investCompleted: false,
-        referralBonuses: 0,
-      },
-      { merge: true }
-    );
+      const endTime = Date.now() + dur;
 
-    // Update local UI states
-    setTimeLeft(dur);
-    setOfferLocked(true);
-    setReferralBonuses(0);
-    setStatus("✅ Investment started");
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          selectedOffer,
+          offerEndTime: endTime,
+          investCompleted: false,
+          referralBonuses: 0,
+        },
+        { merge: true }
+      );
 
-    // ✅ Full Discord webhook notification with all details
-    await sendDiscordNotification(
-      "💸 New Investment",
-      `User: ${user.email}
+      setTimeLeft(dur);
+      setOfferLocked(true);
+      setReferralBonuses(0);
+      setStatus("✅ Investment started");
+
+      await sendDiscordNotification(
+        "💸 New Investment",
+        `User: ${user.email}
 Amount: ${selectedOffer.range}
 Tokens: ${selectedOffer.tokens} ILY
 Duration: ${selectedOffer.displayTime}
@@ -210,49 +230,44 @@ Wallet: ${usdtWallet}
 Token Wallet: ${tokenWallet}
 
 Illyrian Project Wallet Tracker`,
-      getNetworkColor(network)
-    );
-  } catch (e) {
-    console.error("Investment error:", e);
-    setStatus("❌ Error confirming investment");
-  }
-};
+        getNetworkColor(network)
+      );
+    } catch (e) {
+      console.error("Investment error:", e);
+      setStatus("❌ Error confirming investment");
+    }
+  };
 
+  const handleStartMining = async () => {
+    if (!user) return setStatus("⚠️ Login required");
+    const tier = miningTiers[sliderIndex];
+    if (!tier) return;
 
-  // ------------- MINING START -------------
-const handleStartMining = async () => {
-  if (!user) return setStatus("⚠️ Login required");
-  const tier = miningTiers[sliderIndex];
-  if (!tier) return;
+    try {
+      let dur = tier.durationSecs * 1000;
+      const reduction = Math.min(referralBonuses * 10, 20);
+      if (reduction > 0) dur *= 1 - reduction / 100;
 
-  try {
-    // Calculate duration and referral reduction
-    let dur = tier.durationSecs * 1000;
-    const reduction = Math.min(referralBonuses * 10, 20);
-    if (reduction > 0) dur *= 1 - reduction / 100;
-    const endTime = Date.now() + dur;
+      const endTime = Date.now() + dur;
 
-    // Save mining details to Firestore
-    await setDoc(
-      doc(db, "users", user.uid),
-      {
-        mining: { ...tier, miningEndTime: endTime, tier: tier.amount },
-        miningCompleted: false,
-        referralBonuses: 0,
-      },
-      { merge: true }
-    );
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          mining: { ...tier, miningEndTime: endTime, tier: tier.amount },
+          miningCompleted: false,
+          referralBonuses: 0,
+        },
+        { merge: true }
+      );
 
-    // Update local UI state
-    setMiningTimeLeft(dur);
-    setMiningLocked(true);
-    setReferralBonuses(0);
-    setStatus("✅ Mining started");
+      setMiningTimeLeft(dur);
+      setMiningLocked(true);
+      setReferralBonuses(0);
+      setStatus("✅ Mining started");
 
-    // ✅ Full Discord webhook notification
-    await sendDiscordNotification(
-      "⛏️ Mining Started",
-      `User: ${user.email}
+      await sendDiscordNotification(
+        "⛏️ Mining Started",
+        `User: ${user.email}
 Tier: ${tier.amount} ILY
 Fee: ${tier.fee} USDT
 Duration: ${tier.displayTime}
@@ -261,31 +276,28 @@ Wallet: ${usdtWallet}
 Token Wallet: ${tokenWallet}
 
 Illyrian Project Wallet Tracker`,
-      getNetworkColor(network)
-    );
-  } catch (e) {
-    console.error("Mining start error:", e);
-    setStatus("❌ Error starting mining");
-  }
-};
+        getNetworkColor(network)
+      );
+    } catch (e) {
+      console.error("Mining start error:", e);
+      setStatus("❌ Error starting mining");
+    }
+  };
 
-
-  // ------------- RESET BUTTONS -------------
   const handleResetInvestment = async () => {
-  if (!user) return;
-  await updateDoc(doc(db, "users", user.uid), {
-    selectedOffer: null,
-    offerEndTime: null,
-    investCompleted: false, // ✅ must be false to re-enable investment
-  });
-  setSelectedOffer(null);
-  setOfferLocked(false);
-  setTimeLeft(0);
-  setShowResetButton(false);
-  setInvestCompleted(false);
-  setStatus("");
-};
-
+    if (!user) return;
+    await updateDoc(doc(db, "users", user.uid), {
+      selectedOffer: null,
+      offerEndTime: null,
+      investCompleted: false,
+    });
+    setSelectedOffer(null);
+    setOfferLocked(false);
+    setTimeLeft(0);
+    setShowResetButton(false);
+    setInvestCompleted(false);
+    setStatus("");
+  };
 
   const handleResetMining = async () => {
     if (!user) return;
@@ -300,114 +312,81 @@ Illyrian Project Wallet Tracker`,
     setStatus("");
   };
 
-  // -------- TIMER EFFECTS --------
+  // ===================== TIMERS =====================
+
+  // Investment countdown
   useEffect(() => {
     if (timeLeft <= 0) return;
-    const i = setInterval(() => setTimeLeft((p) => Math.max(0, p - 1000)), 1000);
+    const i = setInterval(
+      () => setTimeLeft((p) => Math.max(0, p - 1000)),
+      1000
+    );
     return () => clearInterval(i);
   }, [timeLeft]);
 
-useEffect(() => {
-  if (timeLeft === 0 && offerLocked) {
-    setOfferLocked(false);
-    setShowResetButton(true);
-    setInvestCompleted(true);
-    setStatus("✅ Investment finished successfully. Your tokens will be received within 12 hours.");
+  useEffect(() => {
+    if (timeLeft === 0 && offerLocked) {
+      setOfferLocked(false);
+      setShowResetButton(true);
+      setInvestCompleted(true);
+      setStatus(
+        "✅ Investment finished successfully. Your tokens will be received within 12 hours."
+      );
 
-    if (user && selectedOffer) {
-      const summary = {
-        amount: selectedOffer.range,
-        tokens: selectedOffer.tokens,
-        endedAt: Date.now(),
-      };
+      if (user && selectedOffer) {
+        const summary = {
+          amount: selectedOffer.range,
+          tokens: selectedOffer.tokens,
+          endedAt: Date.now(),
+        };
 
-      // ✅ Save to Firestore
-      updateDoc(doc(db, "users", user.uid), {
-        investCompleted: true,
-        lastInvestSummary: summary,
-      });
+        updateDoc(doc(db, "users", user.uid), {
+          investCompleted: true,
+          lastInvestSummary: summary,
+        });
 
-      // ✅ Instantly update local UI without needing a refresh
-      setLastInvestSummary(summary);
+        setLastInvestSummary(summary);
+      }
     }
-  }
-}, [timeLeft]);
+  }, [timeLeft, offerLocked, user, selectedOffer]);
 
-
-
- // -------- TIMER EFFECTS --------
-
-// Investment countdown ticker
-useEffect(() => {
-  if (timeLeft <= 0) return;
-  const i = setInterval(() => setTimeLeft((p) => Math.max(0, p - 1000)), 1000);
-  return () => clearInterval(i);
-}, [timeLeft]);
-
-// Investment completion
-useEffect(() => {
-  if (timeLeft === 0 && offerLocked) {
-    setOfferLocked(false);
-    setShowResetButton(true);
-    setInvestCompleted(true);
-    setStatus("✅ Investment finished successfully. Your tokens will be received within 12 hours.");
-
-    if (user && selectedOffer) {
-      const summary = {
-        amount: selectedOffer.range,
-        tokens: selectedOffer.tokens,
-        endedAt: Date.now(),
-      };
-
-      updateDoc(doc(db, "users", user.uid), {
-        investCompleted: true,
-        lastInvestSummary: summary,
-      });
-
-      // ✅ instantly update UI
-      setLastInvestSummary(summary);
-    }
-  }
-}, [timeLeft, offerLocked, user, selectedOffer]);
-
-// Mining countdown ticker (⏳ this was missing!)
-useEffect(() => {
-  if (miningTimeLeft <= 0) return;
-  const i = setInterval(() => setMiningTimeLeft((p) => Math.max(0, p - 1000)), 1000);
-  return () => clearInterval(i);
-}, [miningTimeLeft]);
-
-// Mining completion
-useEffect(() => {
-  if (miningTimeLeft === 0 && miningLocked) {
-    setMiningLocked(false);
-    setShowMiningReset(true);
-    setMiningCompleted(true);
-    setStatus(
-      "✅ Mining finished successfully. Please ensure your fee is paid; your tokens will be received within 12 hours."
+  // Mining countdown
+  useEffect(() => {
+    if (miningTimeLeft <= 0) return;
+    const i = setInterval(
+      () => setMiningTimeLeft((p) => Math.max(0, p - 1000)),
+      1000
     );
+    return () => clearInterval(i);
+  }, [miningTimeLeft]);
 
-    if (user && miningTiers[sliderIndex]) {
-      const tier = miningTiers[sliderIndex];
-      const summary = {
-        tier: tier.amount,
-        fee: tier.fee,
-        endedAt: Date.now(),
-      };
+  useEffect(() => {
+    if (miningTimeLeft === 0 && miningLocked) {
+      setMiningLocked(false);
+      setShowMiningReset(true);
+      setMiningCompleted(true);
+      setStatus(
+        "✅ Mining finished successfully. Please ensure your fee is paid; your tokens will be received within 12 hours."
+      );
 
-      updateDoc(doc(db, "users", user.uid), {
-        miningCompleted: true,
-        lastMiningSummary: summary,
-      });
+      if (user && miningTiers[sliderIndex]) {
+        const tier = miningTiers[sliderIndex];
+        const summary = {
+          tier: tier.amount,
+          fee: tier.fee,
+          endedAt: Date.now(),
+        };
 
-      // ✅ instantly update UI
-      setLastMiningSummary(summary);
+        updateDoc(doc(db, "users", user.uid), {
+          miningCompleted: true,
+          lastMiningSummary: summary,
+        });
+
+        setLastMiningSummary(summary);
+      }
     }
-  }
-}, [miningTimeLeft, miningLocked, user, miningTiers, sliderIndex]);
+  }, [miningTimeLeft, miningLocked, user, miningTiers, sliderIndex]);
 
-
-// ====== PART 2/2 ======
   const formatHHMMSS = (ms) => {
     const total = Math.max(0, Math.floor(ms / 1000));
     const hh = String(Math.floor(total / 3600)).padStart(2, "0");
@@ -419,7 +398,7 @@ useEffect(() => {
   // ===================== RENDER =====================
   return (
     <div style={styles.page}>
-      {/* Hero Section */}
+      {/* HERO */}
       <section style={styles.hero}>
         <div style={styles.heroContent}>
           <div style={styles.titleContainer}>
@@ -444,27 +423,26 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* Payment Addresses Section */}
+      {/* PAYMENT ADDRESSES */}
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Payment Addresses</h2>
+
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <h3 style={styles.cardTitle}>💰 Network Payment Addresses</h3>
             <p
-  style={{
-    fontSize: "13px",
-    fontWeight: 500,
-    margin: "0 0 10px 0",
-    background: "linear-gradient(135deg,#7dd3fc,#3b82f6)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
-    color: "#7dd3fc", // fallback so it never becomes invisible
-  }}
->
-  ⓘ Send the invest amount or fees to these addresses
-</p>
-
+              style={{
+                fontSize: "13px",
+                fontWeight: 500,
+                margin: "0 0 10px 0",
+                background: "linear-gradient(135deg,#7dd3fc,#3b82f6)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              ⓘ Send the invest amount or fees to these addresses
+            </p>
           </div>
 
           <div style={{ textAlign: "center", marginBottom: 12 }}>
@@ -472,12 +450,15 @@ useEffect(() => {
               style={styles.primaryBtn}
               onClick={() => setShowAddresses((s) => !s)}
             >
-              {showAddresses ? "Hide Payment Addresses 🔼" : "Show Payment Addresses 🔽"}
+              {showAddresses
+                ? "Hide Payment Addresses 🔼"
+                : "Show Payment Addresses 🔽"}
             </button>
           </div>
 
           <p style={{ ...styles.cardDescription, marginTop: 0 }}>
-            Use the addresses below to pay for your investment offers or mining fees. Payments are verified manually within 12 hours.
+            Use the addresses below to pay for your investment offers or mining
+            fees. Payments are verified manually within 12 hours.
           </p>
 
           <div
@@ -521,9 +502,10 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* Wallet Information Section */}
+      {/* WALLET SETUP */}
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Wallet Setup</h2>
+
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <h3 style={styles.cardTitle}>🔐 Wallet Information</h3>
@@ -532,31 +514,31 @@ useEffect(() => {
                 Save Wallets
               </button>
             ) : (
-             <button
-  onClick={handleEditWallets}
-  style={{
-    ...styles.ghostBtn,
-    background: "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)",
-    border: "none",
-    color: "#fff",
-    fontWeight: 700,
-  }}
->
-  Edit Wallets
-</button>
-
+              <button
+                onClick={handleEditWallets}
+                style={{
+                  ...styles.ghostBtn,
+                  background:
+                    "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: 700,
+                }}
+              >
+                Edit Wallets
+              </button>
             )}
           </div>
 
           <p style={styles.cardDescription}>
-            Set up your wallet addresses to receive tokens and make payments securely from your desired platform.
+            Set up your wallet addresses to receive tokens and make payments
+            securely from your desired platform.
           </p>
 
           <div style={styles.walletGrid}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                🌐 Network
-                <span style={styles.required}> *</span>
+                🌐 Network<span style={styles.required}> *</span>
               </label>
               <select
                 value={network}
@@ -576,8 +558,7 @@ useEffect(() => {
 
             <div style={styles.inputGroup}>
               <label style={styles.label}>
-                💵 USDT Wallet
-                <span style={styles.required}> *</span>
+                💵 USDT Wallet<span style={styles.required}> *</span>
               </label>
               <input
                 value={usdtWallet}
@@ -601,14 +582,16 @@ useEffect(() => {
                 placeholder="34 characters token wallet address"
               />
               <p style={styles.helperText}>
-                Warning! Please paste your correct addresses — they’ll be used later to confirm your invest/mining and payment tracking. We manually review every investment, mining, and payment.
+                Warning! Please paste your correct addresses — they’ll be used
+                later to confirm your invest/mining and payment tracking. We
+                manually review every investment, mining, and payment.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Investment Offers Section */}
+      {/* INVESTMENT OFFERS */}
       <section style={styles.section}>
         <div style={styles.centeredHeader}>
           <h2 style={styles.sectionTitle}>Investment Offers</h2>
@@ -639,65 +622,177 @@ useEffect(() => {
           </button>
         </div>
 
-        {/* Offers grid */}
-        <div className="offers-grid">
-          {offers.map((offer) => {
-            const isSelected = selectedOffer?.id === offer.id;
-            const isDimmed = (offerLocked || investCompleted) && !isSelected;
+        {/* MOBILE: 2x4 GRID EXACTLY AS BEFORE */}
+        {isMobile ? (
+          <div className="offers-grid">
+            {offers.map((offer) => {
+              const isSelected = selectedOffer?.id === offer.id;
+              const isDimmed = (offerLocked || investCompleted) && !isSelected;
+              return (
+                <div
+                  key={offer.id}
+                  className={`offer-card ${isSelected ? "selected" : ""} ${
+                    isDimmed ? "dimmed" : ""
+                  }`}
+                  style={{
+                    backgroundImage: `url(${offer.image})`,
+                  }}
+                  onClick={() => {
+                    if (!offerLocked && !investCompleted)
+                      setSelectedOffer(offer);
+                  }}
+                >
+                  <div className="offer-overlay" />
 
-            return (
-              <div
-                key={offer.id}
-                className={`offer-card ${isSelected ? "selected" : ""} ${
-                  isDimmed ? "dimmed" : ""
-                }`}
-                style={{
-                  backgroundImage: `url(${offer.image})`,
-                }}
-                onClick={() => {
-                  if (!offerLocked && !investCompleted) setSelectedOffer(offer);
-                }}
-                onMouseEnter={(e) => {
-                  if (!isMobile && !offerLocked && !investCompleted && !isSelected) {
-                    e.currentTarget.style.transform = "scale(1.05)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMobile && !isSelected) {
-                    e.currentTarget.style.transform = "scale(1)";
-                  }
-                }}
-              >
-                <div className="offer-overlay" />
+                  {isSelected && (
+                    <>
+                      <div className="selected-glow" />
+                      <div className="selected-badge">
+                        <div className="selected-check">✓</div>
+                        Selected
+                      </div>
+                    </>
+                  )}
 
-                {isSelected && (
-                  <>
-                    <div className="selected-glow" />
-                    <div className="selected-badge">
-                      <div className="selected-check">✓</div>
-                      Selected
-                    </div>
-                  </>
-                )}
-
-                <div className="offer-content">
-                  <div className="offer-info">
-                    <div className="price-section">
-                      <div className="offer-price">{offer.range}</div>
-                      <div className="offer-tokens">+{offer.tokens} ILLYRIAN</div>
-                    </div>
-                    <div className="timer-section">
-                      <div className="offer-timer">
-                        <span className="timer-icon">⏱️</span>
-                        {offer.displayTime}
+                  <div className="offer-content">
+                    <div className="offer-info">
+                      <div className="price-section">
+                        <div className="offer-price">{offer.range}</div>
+                        <div className="offer-tokens">
+                          +{offer.tokens} ILLYRIAN
+                        </div>
+                      </div>
+                      <div className="timer-section">
+                        <div className="offer-timer">
+                          <span className="timer-icon">⏱️</span>
+                          {offer.displayTime}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        ) : (
+          // DESKTOP: 4 offer cards, 3 PNGs, 4 offer cards
+          <div className="offers-desktop-wrapper">
+            <div className="offers-row">
+              {offers.slice(0, 4).map((offer) => {
+                const isSelected = selectedOffer?.id === offer.id;
+                const isDimmed =
+                  (offerLocked || investCompleted) && !isSelected;
+                return (
+                  <div
+                    key={offer.id}
+                    className={`offer-card ${isSelected ? "selected" : ""} ${
+                      isDimmed ? "dimmed" : ""
+                    }`}
+                    style={{
+                      backgroundImage: `url(${offer.image})`,
+                    }}
+                    onClick={() => {
+                      if (!offerLocked && !investCompleted)
+                        setSelectedOffer(offer);
+                    }}
+                  >
+                    <div className="offer-overlay" />
+                    {isSelected && (
+                      <>
+                        <div className="selected-glow" />
+                        <div className="selected-badge">
+                          <div className="selected-check">✓</div>
+                          Selected
+                        </div>
+                      </>
+                    )}
+                    <div className="offer-content">
+                      <div className="offer-info">
+                        <div className="price-section">
+                          <div className="offer-price">{offer.range}</div>
+                          <div className="offer-tokens">
+                            +{offer.tokens} ILLYRIAN
+                          </div>
+                        </div>
+                        <div className="timer-section">
+                          <div className="offer-timer">
+                            <span className="timer-icon">⏱️</span>
+                            {offer.displayTime}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* MIDDLE PNG ROW */}
+            <div className="offers-mid-row">
+              <div className="mid-spacer" />
+              <div className="mid-image-wrapper">
+                <img src="/images/mid1.png" alt="Mid 1" className="mid-image" />
               </div>
-            );
-          })}
-        </div>
+              <div className="mid-image-wrapper">
+                <img src="/images/mid2.png" alt="Mid 2" className="mid-image" />
+              </div>
+              <div className="mid-image-wrapper">
+                <img src="/images/mid3.png" alt="Mid 3" className="mid-image" />
+              </div>
+              <div className="mid-spacer" />
+            </div>
+
+            <div className="offers-row">
+              {offers.slice(4, 8).map((offer) => {
+                const isSelected = selectedOffer?.id === offer.id;
+                const isDimmed =
+                  (offerLocked || investCompleted) && !isSelected;
+                return (
+                  <div
+                    key={offer.id}
+                    className={`offer-card ${isSelected ? "selected" : ""} ${
+                      isDimmed ? "dimmed" : ""
+                    }`}
+                    style={{
+                      backgroundImage: `url(${offer.image})`,
+                    }}
+                    onClick={() => {
+                      if (!offerLocked && !investCompleted)
+                        setSelectedOffer(offer);
+                    }}
+                  >
+                    <div className="offer-overlay" />
+                    {isSelected && (
+                      <>
+                        <div className="selected-glow" />
+                        <div className="selected-badge">
+                          <div className="selected-check">✓</div>
+                          Selected
+                        </div>
+                      </>
+                    )}
+                    <div className="offer-content">
+                      <div className="offer-info">
+                        <div className="price-section">
+                          <div className="offer-price">{offer.range}</div>
+                          <div className="offer-tokens">
+                            +{offer.tokens} ILLYRIAN
+                          </div>
+                        </div>
+                        <div className="timer-section">
+                          <div className="offer-timer">
+                            <span className="timer-icon">⏱️</span>
+                            {offer.displayTime}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Investment Timer */}
         {timeLeft > 0 && (
@@ -717,7 +812,9 @@ useEffect(() => {
                         (timeLeft /
                           (Math.max(
                             1,
-                            (selectedOffer?.durationHours || 1) * 3600 * 1000
+                            (selectedOffer?.durationHours || 1) *
+                              3600 *
+                              1000
                           ))) *
                           100
                       )
@@ -728,11 +825,11 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Investment completion message (persists until user clicks reset) */}
         {showResetButton && investCompleted && (
           <div style={styles.successCard}>
             <p style={styles.successText}>
-              🎉 Investment finished successfully. Your tokens will be received within <strong>12 hours</strong>.
+              🎉 Investment finished successfully. Your tokens will be received
+              within <strong>12 hours</strong>.
             </p>
             <button style={styles.ghostBtn} onClick={handleResetInvestment}>
               Start New Investment
@@ -742,18 +839,22 @@ useEffect(() => {
       </section>
 
       {lastInvestSummary && (
-  <div style={styles.summaryCard}>
-    <p style={styles.summaryTitle}>📊 Last Investment Summary</p>
-    <p style={styles.summaryText}>💵 Amount: {lastInvestSummary.amount}</p>
-    <p style={styles.summaryText}>🪙 Tokens: {lastInvestSummary.tokens}</p>
-    <p style={styles.summaryText}>
-      ⏰ Ended: {new Date(lastInvestSummary.endedAt).toLocaleString()}
-    </p>
-  </div>
-)}
+        <div style={styles.summaryCard}>
+          <p style={styles.summaryTitle}>📊 Last Investment Summary</p>
+          <p style={styles.summaryText}>
+            💵 Amount: {lastInvestSummary.amount}
+          </p>
+          <p style={styles.summaryText}>
+            🪙 Tokens: {lastInvestSummary.tokens}
+          </p>
+          <p style={styles.summaryText}>
+            ⏰ Ended:{" "}
+            {new Date(lastInvestSummary.endedAt).toLocaleString()}
+          </p>
+        </div>
+      )}
 
-
-      {/* Mining Section */}
+      {/* MINING SECTION */}
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Mining Operations</h2>
         <div style={styles.card}>
@@ -779,7 +880,9 @@ useEffect(() => {
                 step={1}
                 value={sliderIndex}
                 onChange={(e) =>
-                  !miningLocked && !miningCompleted && setSliderIndex(Number(e.target.value))
+                  !miningLocked &&
+                  !miningCompleted &&
+                  setSliderIndex(Number(e.target.value))
                 }
                 disabled={miningLocked || miningCompleted}
                 style={styles.range}
@@ -791,7 +894,9 @@ useEffect(() => {
                     style={{
                       fontSize: 11,
                       color:
-                        i === sliderIndex ? "#7dd3fc" : "rgba(255,255,255,0.6)",
+                        i === sliderIndex
+                          ? "#7dd3fc"
+                          : "rgba(255,255,255,0.6)",
                       fontWeight: i === sliderIndex ? 600 : 400,
                     }}
                   >
@@ -816,24 +921,26 @@ useEffect(() => {
               </div>
             </div>
 
-           <div style={styles.miningActions}>
-  <button
-    style={{
-      ...styles.primaryBtn,
-      opacity: miningLocked || miningCompleted ? 0.6 : 1,
-      cursor: miningLocked || miningCompleted ? "not-allowed" : "pointer",
-    }}
-    onClick={handleStartMining}
-    disabled={miningLocked || miningCompleted}
-  >
-    {miningLocked
-      ? "Mining in Progress..."
-      : miningCompleted
-      ? "Mining Completed"
-      : "Start Mining"}
-  </button>
-</div>
-
+            <div style={styles.miningActions}>
+              <button
+                style={{
+                  ...styles.primaryBtn,
+                  opacity: miningLocked || miningCompleted ? 0.6 : 1,
+                  cursor:
+                    miningLocked || miningCompleted
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+                onClick={handleStartMining}
+                disabled={miningLocked || miningCompleted}
+              >
+                {miningLocked
+                  ? "Mining in Progress..."
+                  : miningCompleted
+                  ? "Mining Completed"
+                  : "Start Mining"}
+              </button>
+            </div>
 
             {miningTimeLeft > 0 && (
               <div style={styles.timerCard}>
@@ -854,8 +961,8 @@ useEffect(() => {
                             (miningTimeLeft /
                               Math.max(
                                 1,
-                                (miningTiers[sliderIndex]?.durationSecs || 1) *
-                                  1000
+                                (miningTiers[sliderIndex]?.durationSecs ||
+                                  1) * 1000
                               )) *
                               100
                           )
@@ -866,11 +973,12 @@ useEffect(() => {
               </div>
             )}
 
-            {/* Mining completion message (persists until user clicks reset) */}
             {showMiningReset && miningCompleted && (
               <div style={styles.successCard}>
                 <p style={styles.successText}>
-                  ✅ Mining finished successfully. Please ensure your fee is paid; your tokens will be received within <strong>12 hours</strong>.
+                  ✅ Mining finished successfully. Please ensure your fee is
+                  paid; your tokens will be received within{" "}
+                  <strong>12 hours</strong>.
                 </p>
                 <button style={styles.ghostBtn} onClick={handleResetMining}>
                   Mine Again
@@ -881,26 +989,28 @@ useEffect(() => {
         </div>
       </section>
 
-{lastMiningSummary && (
-  <div style={styles.summaryCard}>
-    <p style={styles.summaryTitle}>⛏️ Last Mining Summary</p>
-    <p style={styles.summaryText}>💎 Tier: {lastMiningSummary.tier} ILY</p>
-    <p style={styles.summaryText}>💰 Fee: ${lastMiningSummary.fee}</p>
-    <p style={styles.summaryText}>
-      ⏰ Ended: {new Date(lastMiningSummary.endedAt).toLocaleString()}
-    </p>
-  </div>
-)}
+      {lastMiningSummary && (
+        <div style={styles.summaryCard}>
+          <p style={styles.summaryTitle}>⛏️ Last Mining Summary</p>
+          <p style={styles.summaryText}>
+            💎 Tier: {lastMiningSummary.tier} ILY
+          </p>
+          <p style={styles.summaryText}>
+            💰 Fee: ${lastMiningSummary.fee}
+          </p>
+          <p style={styles.summaryText}>
+            ⏰ Ended:{" "}
+            {new Date(lastMiningSummary.endedAt).toLocaleString()}
+          </p>
+        </div>
+      )}
 
-
-      {/* Status Message */}
       {status && (
         <div style={styles.statusCard}>
           <p style={styles.statusText}>{status}</p>
         </div>
       )}
 
-      {/* Sync Indicator */}
       {fade && (
         <div style={styles.syncIndicator}>
           <div style={styles.pulseCircle}></div>
@@ -910,12 +1020,20 @@ useEffect(() => {
 
       <style jsx>{`
         @keyframes pulse {
-          0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.1); opacity: 0.8; }
-          100% { transform: scale(1); opacity: 1; }
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
 
-        /* Network select dropdown colors */
         .network-select {
           background: rgba(255, 255, 255, 0.08) !important;
           color: white !important;
@@ -924,12 +1042,8 @@ useEffect(() => {
           background: #1a1a1a !important;
           color: white !important;
         }
-        .network-select:focus {
-          outline: none;
-          border-color: rgba(139, 92, 246, 0.5) !important;
-        }
 
-        /* MOBILE FIRST */
+        /* MOBILE OFFERS GRID (unchanged 2x4) */
         .offers-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -959,7 +1073,7 @@ useEffect(() => {
         }
 
         .offer-card.selected {
-          box-shadow: 0 0 14px rgba(139,92,246,0.8);
+          box-shadow: 0 0 14px rgba(139, 92, 246, 0.8);
           transform: scale(1.02);
         }
 
@@ -999,18 +1113,19 @@ useEffect(() => {
           border-radius: 50%;
           display: flex;
           align-items: center;
-          justifyContent: center;
+          justify-content: center;
           font-size: 8px;
           font-weight: bold;
         }
 
         .offer-overlay {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(13,17,23,0.8) 100%);
+          inset: 0;
+          background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.2) 0%,
+            rgba(13, 17, 23, 0.8) 100%
+          );
         }
 
         .offer-content {
@@ -1041,7 +1156,7 @@ useEffect(() => {
           font-size: 1rem;
           font-weight: 700;
           color: #fff;
-          text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         }
 
         .offer-tokens {
@@ -1052,7 +1167,7 @@ useEffect(() => {
           border: 1px solid rgba(125, 211, 252, 0.4);
           padding: 2px 6px;
           border-radius: 6px;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .timer-section {
@@ -1070,18 +1185,26 @@ useEffect(() => {
           padding: 3px 6px;
           border-radius: 6px;
           font-weight: 500;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .timer-icon {
           font-size: 0.6rem;
         }
 
-        /* DESKTOP */
+        /* DESKTOP OFFERS LAYOUT */
         @media (min-width: 769px) {
-          .offers-grid {
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 2px !important;
+          .offers-desktop-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+          }
+
+          .offers-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
           }
 
           .offer-card {
@@ -1097,37 +1220,62 @@ useEffect(() => {
             font-size: 0.6rem;
             padding: 1px 4px;
           }
-        }
 
-        @media (min-width: 1024px) {
-          .offers-grid {
-            gap: 3px !important;
+          .offers-mid-row {
+            display: grid;
+            grid-template-columns: 0.5fr 1fr 1fr 1fr 0.5fr;
+            gap: 10px;
+            align-items: center;
+            justify-items: center;
           }
 
-          .offer-card {
-            height: 140px;
-            min-height: 140px;
+          .mid-spacer {
+            width: 100%;
+            height: 1px;
+          }
+
+          .mid-image-wrapper {
+            width: 100%;
+            max-width: 160px;
+            aspect-ratio: 1 / 1;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            background: radial-gradient(
+              circle at 20% 0%,
+              rgba(139, 92, 246, 0.25),
+              rgba(15, 23, 42, 1)
+            );
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.8);
+          }
+
+          .mid-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
           }
         }
-          @supports (-webkit-touch-callout: none) {
-    /* ONLY fix transparent elements Safari turns white */
-    .ios-bg-fix {
-      background-color: rgba(255, 255, 255, 0.03) !important;
-      background: rgba(255, 255, 255, 0.03) !important;
-    }
-  }
+
+        @supports (-webkit-touch-callout: none) {
+          .ios-bg-fix {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            background: rgba(255, 255, 255, 0.03) !important;
+          }
+        }
       `}</style>
     </div>
   );
 }
 
-// ===================== STYLES =====================
+// ===================== STYLES OBJECT =====================
 const styles = {
   page: {
     position: "relative",
     minHeight: "100vh",
     overflow: "hidden",
-    fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily:
+      "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
     padding: "0 8px",
     color: "#fff",
   },
@@ -1159,7 +1307,8 @@ const styles = {
   },
 
   titleGradient: {
-    background: "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%)",
+    background:
+      "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     backgroundClip: "text",
@@ -1180,7 +1329,8 @@ const styles = {
     transform: "translate(-50%, -50%)",
     width: "100%",
     height: "100%",
-    background: "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)",
+    background:
+      "radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)",
     filter: "blur(35px)",
     zIndex: -1,
   },
@@ -1243,12 +1393,6 @@ const styles = {
     marginBottom: "25px",
   },
 
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    marginBottom: "30px",
-  },
-
   sectionSubtitle: {
     fontSize: "0.95rem",
     color: "rgba(255, 255, 255, 0.7)",
@@ -1291,20 +1435,6 @@ const styles = {
     margin: "0 0 20px 0",
   },
 
-  infoBadge: {
-  background: "rgba(56, 189, 248, 0.1)",
-  border: "1px solid rgba(56, 189, 248, 0.3)",
-  color: "#7dd3fc",
-  padding: "6px 12px",
-  borderRadius: "10px",
-  fontSize: "13px",
-  fontWeight: 500,
-  backdropFilter: "blur(10px)",
-  alignSelf: "flex-start",
-},
-
-
-  // Fee Addresses
   feeGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
@@ -1349,7 +1479,6 @@ const styles = {
     overflow: "hidden",
   },
 
-  // Wallet Section
   walletGrid: {
     display: "grid",
     gridTemplateColumns: "1fr",
@@ -1392,15 +1521,68 @@ const styles = {
     lineHeight: 1.4,
   },
 
-  // Offers Grid (layout controlled by CSS above)
-  offersGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: "12px",
-    marginBottom: "25px",
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: "30px",
   },
 
-  // Mining Section
+  primaryBtn: {
+    padding: "14px 20px",
+    borderRadius: "10px",
+    border: "none",
+    background: "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)",
+    color: "#fff",
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: "14px",
+    transition: "all 0.3s ease",
+    backdropFilter: "blur(10px)",
+    minHeight: "44px",
+    width: "100%",
+    maxWidth: "280px",
+  },
+
+  ghostBtn: {
+    padding: "12px 18px",
+    borderRadius: "10px",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    background: "rgba(255, 255, 255, 0.05)",
+    color: "rgba(255, 255, 255, 0.9)",
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: "13px",
+    transition: "all 0.3s ease",
+    backdropFilter: "blur(10px)",
+    minHeight: "40px",
+  },
+
+  copyBtn: {
+    padding: "6px 12px",
+    borderRadius: "6px",
+    border: "1px solid rgba(139, 92, 246, 0.3)",
+    background: "rgba(139, 92, 246, 0.15)",
+    color: "#8b5cf6",
+    cursor: "pointer",
+    fontWeight: 500,
+    fontSize: "10px",
+    transition: "all 0.3s ease",
+  },
+
+  copiedFloat: {
+    position: "absolute",
+    bottom: "110%",
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "rgba(34, 197, 94, 0.95)",
+    color: "#041018",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "10px",
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+  },
+
   miningContent: {
     display: "flex",
     flexDirection: "column",
@@ -1458,64 +1640,6 @@ const styles = {
     gap: "12px",
   },
 
-  // Buttons
-  primaryBtn: {
-    padding: "14px 20px",
-    borderRadius: "10px",
-    border: "none",
-    background: "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)",
-    color: "#fff",
-    cursor: "pointer",
-    fontWeight: 600,
-    fontSize: "14px",
-    transition: "all 0.3s ease",
-    backdropFilter: "blur(10px)",
-    minHeight: "44px",
-    width: "100%",
-    maxWidth: "280px",
-  },
-
-  ghostBtn: {
-    padding: "12px 18px",
-    borderRadius: "10px",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "rgba(255, 255, 255, 0.9)",
-    cursor: "pointer",
-    fontWeight: 600,
-    fontSize: "13px",
-    transition: "all 0.3s ease",
-    backdropFilter: "blur(10px)",
-    minHeight: "40px",
-  },
-
-  copyBtn: {
-    padding: "6px 12px",
-    borderRadius: "6px",
-    border: "1px solid rgba(139, 92, 246, 0.3)",
-    background: "rgba(139, 92, 246, 0.15)",
-    color: "#8b5cf6",
-    cursor: "pointer",
-    fontWeight: 500,
-    fontSize: "10px",
-    transition: "all 0.3s ease",
-  },
-
-  copiedFloat: {
-    position: "absolute",
-    bottom: "110%",
-    left: "50%",
-    transform: "translateX(-50%)",
-    background: "rgba(34, 197, 94, 0.95)",
-    color: "#041018",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    fontSize: "10px",
-    fontWeight: 600,
-    whiteSpace: "nowrap",
-  },
-
-  // Timers & Progress
   timerCard: {
     background: "rgba(255, 255, 255, 0.05)",
     border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -1549,12 +1673,12 @@ const styles = {
 
   progressBar: {
     height: "100%",
-    background: "linear-gradient(90deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%)",
+    background:
+      "linear-gradient(90deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%)",
     transition: "width 1s linear",
     borderRadius: "8px",
   },
 
-  // Status & Messages
   statusCard: {
     background: "rgba(255, 255, 255, 0.05)",
     border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -1587,7 +1711,6 @@ const styles = {
     fontSize: "14px",
   },
 
-  // Sync Indicator
   syncIndicator: {
     position: "fixed",
     bottom: "16px",
@@ -1617,29 +1740,28 @@ const styles = {
     fontSize: "11px",
     color: "rgba(255, 255, 255, 0.9)",
     fontWeight: 500,
-  
   },
+
   summaryCard: {
-  background: "rgba(255, 255, 255, 0.05)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  borderRadius: "10px",
-  padding: "12px",
-  marginTop: "10px",
-  fontSize: "13px",
-  color: "rgba(255, 255, 255, 0.85)",
-  textAlign: "center",
-},
+    background: "rgba(255, 255, 255, 0.05)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: "10px",
+    padding: "12px",
+    marginTop: "10px",
+    fontSize: "13px",
+    color: "rgba(255, 255, 255, 0.85)",
+    textAlign: "center",
+  },
 
-summaryTitle: {
-  fontWeight: 700,
-  marginBottom: "4px",
-  color: "#7dd3fc",
-},
+  summaryTitle: {
+    fontWeight: 700,
+    marginBottom: "4px",
+    color: "#7dd3fc",
+  },
 
-summaryText: {
-  margin: "2px 0",
-  fontSize: "12px",
-  color: "rgba(255, 255, 255, 0.75)",
-},
-
+  summaryText: {
+    margin: "2px 0",
+    fontSize: "12px",
+    color: "rgba(255, 255, 255, 0.75)",
+  },
 };
