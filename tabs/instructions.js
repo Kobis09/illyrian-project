@@ -103,7 +103,7 @@ export default function Instructions() {
         <div style={styles.heroContent}>
           <div style={styles.titleContainer}>
             <h1 style={styles.mainTitle}>
-              <span style={styles.titleGradient}>Getting Started</span>
+              <span style={styles.titleGradient}>Instructions</span>
               <span style={styles.titleSub}>Guide</span>
             </h1>
             <div style={styles.titleDecoration}>
@@ -792,4 +792,29 @@ const styles = {
     color: "rgba(255, 255, 255, 0.9)",
     fontWeight: 500,
   },
+  mainTitleUpdated: {
+  fontSize: "clamp(1.8rem, 4.5vw, 2.7rem)",   // ⭐ smaller like Invest & Mine
+  fontWeight: 800,
+  lineHeight: 1.15,
+  margin: "0 0 10px 0",
+  textAlign: "center",
+},
+
+titleGradientUpdated: {
+  background:
+    "linear-gradient(135deg, #a78bfa 0%, #6366f1 35%, #3b82f6 65%, #06b6d4 100%)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  display: "inline-block",
+},
+
+titleSubUpdated: {
+  color: "rgba(255,255,255,0.9)",
+  fontSize: "clamp(0.8rem, 2vw, 1rem)",
+  letterSpacing: "1px",
+  fontWeight: 400,
+  display: "block",
+  marginTop: "6px",
+},
+
 };
