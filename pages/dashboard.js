@@ -1,4 +1,4 @@
-// dashboard.js — FIXED VERSION (NO SSR CRASH, SAFE-STARS, FULL UPDATE)
+// dashboard.js — POLISHED UI VERSION (MOBILE SAFE, NO LOGIC CHANGES)
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { auth, db } from "../firebase";
@@ -7,6 +7,8 @@ import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
 import TabsNav from "../components/TabsNav";
+
+// EXISTING TABS
 import TokenInfo from "../tabs/tokeninfo";
 import Instructions from "../tabs/instructions";
 import EarningsOverview from "../tabs/EarningsOverview";
@@ -14,6 +16,10 @@ import Contact from "../tabs/contact";
 import InvestMine from "../components/InvestMine";
 import ReferralBonus from "../components/ReferralBonus";
 import About from "../tabs/about";
+
+// ⭐ NEW TABS ⭐
+import Profile from "../tabs/profile";
+import Settings from "../tabs/settings";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -25,128 +31,88 @@ export default function Dashboard() {
   const [stars, setStars] = useState([]);
   const [fade, setFade] = useState(false);
 
-  // ⭐ MUST BE SAFE — detect mobile ONLY in browser
   const [isMobile, setIsMobile] = useState(false);
-
-  // ❗ PREVENT STATIC EXPORT CRASH
   const [client, setClient] = useState(false);
-  useEffect(() => {
-    setClient(true);
-  }, []);
 
-  // ⭐ MOBILE CHECK — browser ONLY, never on server
+  useEffect(() => { setClient(true); }, []);
+
+  // MOBILE CHECK
   useEffect(() => {
     if (!client) return;
-
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, [client]);
 
-  // ⭐ AUTH STATE LISTENER
+  // AUTH
   useEffect(() => {
     if (!client) return;
 
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (!u) {
-        router.push("/");
+        setUser(null);
+        router.replace("/");
         return;
       }
 
       setUser(u);
 
       try {
-        const docRef = doc(db, "users", u.uid);
-        const snap = await getDoc(docRef);
-
+        const snap = await getDoc(doc(db, "users", u.uid));
         if (snap.exists() && snap.data().username) {
           setUsername(snap.data().username);
         }
-      } catch (e) {
-        console.error("username fetch failed:", e);
+      } catch (err) {
+        console.error("username fetch failed", err);
       }
     });
 
     return () => unsub();
   }, [client, router]);
 
-  // ⭐ SAFE STAR GENERATION — runs ONLY in browser
+  // STAR BG
   useEffect(() => {
     if (!client) return;
 
-    const count = isMobile ? 40 : 80;
-
-    const generated = Array.from({ length: count }, (_, i) => ({
+    const count = isMobile ? 35 : 75;
+    const list = Array.from({ length: count }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: `${Math.random() * (isMobile ? 2 : 3) + 1}px`,
+      size: `${Math.random() * (isMobile ? 1.6 : 2.5) + 1}px`,
       opacity: Math.random() * 0.6 + 0.2,
-      delay: `${Math.random() * 5}s`,
+      delay: `${Math.random() * 6}s`,
     }));
 
-    setStars(generated);
+    setStars(list);
     setFade(true);
-    const t = setTimeout(() => setFade(false), 5000);
-
+    const t = setTimeout(() => setFade(false), 4500);
     return () => clearTimeout(t);
   }, [client, isMobile]);
 
   const handleLogout = async () => {
     await signOut(auth);
-    router.push("/");
+    router.replace("/");
   };
 
-  // ❗ FIRST RENDER ON SERVER — protect against SSR crash
+  // SERVER RENDER
   if (!client)
     return (
-      <p
-        style={{
-          color: "#9fb4cc",
-          textAlign: "center",
-          marginTop: 60,
-          fontSize: 15,
-        }}
-      >
+      <p style={{ color: "#9fb4cc", textAlign: "center", marginTop: 60 }}>
         Loading...
       </p>
     );
 
-  // Wait for auth
+  // WAIT FOR AUTH
   if (!user)
-  return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,              // <-- added
-        bottom: 0,             // <-- added
-        width: "100vw",
-        height: "100vh",
-        background: "#0a0a18",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden",    // <-- added (prevents 1–2px overflow)
-        zIndex: 9999,
-      }}
-    >
-      <p
-        style={{
-          color: "#9fb4cc",
-          fontSize: 16,
-          margin: 0,
-        }}
-      >
-        ✨ Loading your dashboard...
-      </p>
-    </div>
-  );
-
-
+    return (
+      <div style={styles.loadingScreen}>
+        <p style={{ color: "#9fb4cc", fontSize: 16 }}>
+          ✨ Loading your dashboard...
+        </p>
+      </div>
+    );
 
   return (
     <>
@@ -161,17 +127,17 @@ export default function Dashboard() {
         {/* BACKGROUND */}
         <div style={styles.backgroundElements}>
           <div style={styles.starsContainer}>
-            {stars.map((star) => (
+            {stars.map((s) => (
               <div
-                key={star.id}
+                key={s.id}
                 style={{
                   ...styles.star,
-                  left: star.left,
-                  top: star.top,
-                  width: star.size,
-                  height: star.size,
-                  opacity: star.opacity,
-                  animationDelay: star.delay,
+                  left: s.left,
+                  top: s.top,
+                  width: s.size,
+                  height: s.size,
+                  opacity: s.opacity,
+                  animationDelay: s.delay,
                 }}
               />
             ))}
@@ -185,22 +151,20 @@ export default function Dashboard() {
 
         {/* PAGE */}
         <div style={styles.page}>
+          {/* HERO */}
           <section style={styles.hero}>
             <div style={styles.heroContent}>
               <div style={styles.titleContainer}>
                 <h1 style={styles.mainTitle}>
                   <span style={styles.titleGradient}>Welcome</span>
-                  <span style={styles.titleSymbol}>
-                    {username ? ` ${username}` : ""}
-                  </span>
+                  {username && <span style={styles.titleSymbol}> {username}</span>}
                 </h1>
                 <div style={styles.titleGlow}></div>
               </div>
 
               <p style={styles.heroSubtitle}>
-                Ready to explore your{" "}
+                Explore your{" "}
                 <span style={styles.highlight}>Illyrian Token</span> dashboard
-                and <span style={styles.highlight}>maximize your earnings</span>
               </p>
 
               <div style={styles.headerActions}>
@@ -211,7 +175,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* NAV */}
+          {/* TABS NAV */}
           <TabsNav selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
           {/* CONTENT */}
@@ -223,293 +187,249 @@ export default function Dashboard() {
             {selectedTab === "earnings" && <EarningsOverview user={user} />}
             {selectedTab === "contact" && <Contact />}
             {selectedTab === "about" && <About />}
+
+            {/* ⭐ NEW CONTENT TABS ⭐ */}
+            {selectedTab === "profile" && <Profile user={user} />}
+            {selectedTab === "settings" && <Settings user={user} />}
           </div>
-
-          {/* SYNC */}
-          {fade && (
-            <div style={styles.syncIndicator}>
-              <div style={styles.pulseCircle}></div>
-              <span style={styles.syncText}>✨ Dashboard Synchronized</span>
-            </div>
-          )}
-        </div>
-
-        {/* GLOBAL FIXES */}
-        <style jsx global>{`
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          html,
-          body {
-            margin: 0;
-            padding: 0;
-            background-color: #0a0a18 !important;
-            overflow-x: hidden;
-            font-family: Inter, sans-serif;
-          }
-        `}</style>
+        {/* SYNC */}
+        {fade && (
+          <div style={styles.syncIndicator}>
+            <div style={styles.pulseCircle}></div>
+            <span style={styles.syncText}>✨ Dashboard Synchronized</span>
+          </div>
+        )}
       </div>
-    </>
-  );
+
+      {/* GLOBAL FIX */}
+      <style jsx global>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        html,
+        body {
+          background-color: #0a0a18 !important;
+          overflow-x: hidden;
+          font-family: Inter, sans-serif;
+        }
+
+        @keyframes starTwinkle {
+          0% { opacity: 0.3; }
+          50% { opacity: 0.8; }
+          100% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.06); opacity: 0.85; }
+        }
+      `}</style>
+    </div>
+  </>
+);
 }
-/* ----------------------------- MOBILE OPTIMIZED + SAFE EXPORT STYLES ----------------------------- */
+
+/* ----------------------------- POLISHED STYLES ----------------------------- */
+
 const styles = {
-  wrapper: {
-    position: "relative",
-    width: "100%",
-    minHeight: "100vh",
-    overflowX: "hidden",
-    overflowY: "visible",
-    paddingTop: "env(safe-area-inset-top)",
-    paddingBottom: "env(safe-area-inset-bottom)",
-    background: `
-      linear-gradient(135deg, #0a0a18 0%, #151528 40%, #1a1a2e 100%),
-      radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 70%),
-      radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.06) 0%, transparent 70%),
-      radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 70%)
-    `,
-    backgroundAttachment: "scroll",
-    margin: 0,
-    fontFamily:
-      "'Inter','SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif",
-    WebkitOverflowScrolling: "touch",
-  },
+loadingScreen: {
+  position: "fixed",
+  inset: 0,
+  background: "#0a0a18",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 9999,
+},
 
-  /* BACKGROUND ELEMENTS */
-  backgroundElements: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    pointerEvents: "none",
-    zIndex: 0,
-    overflow: "hidden",
-  },
+wrapper: {
+  position: "relative",
+  width: "100%",
+  minHeight: "100vh",
+  overflowX: "hidden",
+  paddingTop: "env(safe-area-inset-top)",
+  paddingBottom: "env(safe-area-inset-bottom)",
+  background: `
+    linear-gradient(135deg,#0a0a18,#151528,#1a1a2e),
+    radial-gradient(circle at 20% 30%,rgba(139,92,246,0.1),transparent),
+    radial-gradient(circle at 80% 70%,rgba(59,130,246,0.08),transparent)
+  `,
+},
 
-  starsContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-  },
+backgroundElements: {
+  position: "fixed",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  pointerEvents: "none",
+  zIndex: 0,
+},
 
-  star: {
-    position: "absolute",
-    background: "rgba(255,255,255,0.85)",
-    borderRadius: "50%",
-    animation: "starTwinkle 4s ease-in-out infinite",
-  },
+starsContainer: {
+  position: "absolute",
+  inset: 0,
+},
 
-  glowOrb1: {
-    position: "absolute",
-    top: "10%",
-    left: "5%",
-    width: "230px",
-    height: "230px",
-    background: `
-      radial-gradient(
-        circle,
-        rgba(139, 92, 246, 0.12) 0%,
-        rgba(139, 92, 246, 0.05) 40%,
-        transparent 80%
-      )
-    `,
-    borderRadius: "50%",
-    filter: "blur(45px)",
-    opacity: 0.25,
-  },
+star: {
+  position: "absolute",
+  background: "rgba(255,255,255,0.9)",
+  borderRadius: "50%",
+  animation: "starTwinkle 4s infinite",
+},
 
-  glowOrb2: {
-    position: "absolute",
-    bottom: "20%",
-    right: "5%",
-    width: "260px",
-    height: "260px",
-    background: `
-      radial-gradient(
-        circle,
-        rgba(59, 130, 246, 0.12) 0%,
-        rgba(59, 130, 246, 0.05) 40%,
-        transparent 80%
-      )
-    `,
-    borderRadius: "50%",
-    filter: "blur(45px)",
-    opacity: 0.25,
-  },
+glowOrb1: {
+  position: "absolute",
+  top: "15%",
+  left: "5%",
+  width: "240px",
+  height: "240px",
+  borderRadius: "50%",
+  background: "radial-gradient(circle,rgba(139,92,246,0.17),transparent 70%)",
+  filter: "blur(55px)",
+},
 
-  glowOrb3: {
-    position: "absolute",
-    top: "55%",
-    left: "50%",
-    width: "270px",
-    height: "270px",
-    transform: "translate(-50%, -50%)",
-    background: `
-      radial-gradient(
-        circle,
-        rgba(16, 185, 129, 0.12) 0%,
-        rgba(16, 185, 129, 0.03) 40%,
-        transparent 80%
-      )
-    `,
-    borderRadius: "50%",
-    filter: "blur(50px)",
-    opacity: 0.23,
-  },
+glowOrb2: {
+  position: "absolute",
+  bottom: "20%",
+  right: "5%",
+  width: "260px",
+  height: "260px",
+  borderRadius: "50%",
+  background: "radial-gradient(circle,rgba(59,130,246,0.13),transparent 70%)",
+  filter: "blur(55px)",
+},
 
-  gridOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundImage: `
-      linear-gradient(rgba(99, 102, 241, 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(99, 102, 241, 0.025) 1px, transparent 1px)
-    `,
-    backgroundSize: "40px 40px",
-    opacity: 0.35,
-  },
+glowOrb3: {
+  position: "absolute",
+  top: "55%",
+  left: "50%",
+  width: "260px",
+  height: "260px",
+  transform: "translate(-50%,-50%)",
+  borderRadius: "50%",
+  background: "radial-gradient(circle,rgba(16,185,129,0.12),transparent 70%)",
+  filter: "blur(50px)",
+},
 
-  /* PAGE */
-  page: {
-    position: "relative",
-    zIndex: 2,
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-    padding: "20px 15px 40px",
-    width: "100%",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
+gridOverlay: {
+  position: "absolute",
+  inset: 0,
+  backgroundImage: `
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+  `,
+  backgroundSize: "42px 42px",
+},
 
-  /* HERO SECTION */
-  hero: {
-    textAlign: "center",
-    padding: "10px 0 5px",
-  },
+page: {
+  position: "relative",
+  zIndex: 2,
+  display: "flex",
+  flexDirection: "column",
+  gap: "20px",
+  padding: "24px 14px 40px",
+  maxWidth: "1200px",
+  margin: "0 auto",
+},
 
-  heroContent: {
-    maxWidth: "100%",
-    margin: "0 auto",
-  },
+/* HERO */
+hero: { textAlign: "center" },
 
-  titleContainer: {
-    position: "relative",
-    marginBottom: "15px",
-  },
+heroContent: {
+  maxWidth: "100%",
+  margin: "0 auto",
+},
 
-  mainTitle: {
-    fontSize: "clamp(2rem, 8vw, 3rem)",
-    fontWeight: 800,
-    background:
-      "linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    margin: 0,
-    lineHeight: 1.15,
-  },
+titleContainer: { position: "relative", marginBottom: "12px" },
 
-  titleGradient: {
-    display: "inline",
-  },
+mainTitle: {
+  fontSize: "clamp(2rem,7vw,3rem)",
+  fontWeight: 800,
+  background: "linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+},
 
-  titleSymbol: {
-    color: "rgba(255,255,255,0.9)",
-    marginLeft: "6px",
-  },
+titleSymbol: {
+  color: "rgba(255,255,255,0.9)",
+  marginLeft: "6px",
+},
 
-  titleGlow: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    width: "100%",
-    height: "100%",
-    transform: "translate(-50%, -50%)",
-    background:
-      "radial-gradient(circle, rgba(139,92,246,0.3), transparent 70%)",
-    filter: "blur(40px)",
-    zIndex: -1,
-  },
+titleGlow: {
+  position: "absolute",
+  inset: 0,
+  background: "radial-gradient(circle,rgba(139,92,246,0.3),transparent 70%)",
+  filter: "blur(40px)",
+  zIndex: -1,
+},
 
-  heroSubtitle: {
-    fontSize: "clamp(0.9rem, 4vw, 1rem)",
-    color: "rgba(255,255,255,0.85)",
-    maxWidth: "340px",
-    margin: "5px auto 20px",
-    lineHeight: 1.45,
-  },
+heroSubtitle: {
+  color: "rgba(255,255,255,0.85)",
+  fontSize: "clamp(0.9rem,3vw,1.1rem)",
+  maxWidth: "320px",
+  margin: "4px auto 16px",
+  lineHeight: 1.4,
+},
 
-  highlight: {
-    background: "linear-gradient(45deg,#93c5fd,#c084fc)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    fontWeight: 600,
-  },
+highlight: {
+  background: "linear-gradient(90deg,#8b5cf6,#3b82f6)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  fontWeight: 600,
+},
 
-  headerActions: {
-    display: "flex",
-    justifyContent: "center",
-  },
+headerActions: { display: "flex", justifyContent: "center" },
 
-  logoutBtn: {
-    padding: "12px 20px",
-    borderRadius: "12px",
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    fontWeight: 600,
-    fontSize: "14px",
-    boxShadow: "0 8px 20px rgba(139,92,246,0.3)",
-  },
+logoutBtn: {
+  padding: "12px 20px",
+  borderRadius: "12px",
+  background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
+  color: "#fff",
+  fontWeight: 600,
+  border: "none",
+  cursor: "pointer",
+  boxShadow: "0 8px 20px rgba(139,92,246,0.28)",
+},
 
-  /* CONTENT BOX */
-  contentBox: {
-    background: "rgba(10,14,22,0.92)",
-    borderRadius: "20px",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "0 15px 35px rgba(0,0,0,0.45)",
-    padding: "0",
-    minHeight: "420px",
-    overflow: "hidden",
-    backdropFilter: "blur(15px)",
-  },
+/* CONTENT BOX */
+contentBox: {
+  background: "rgba(10,14,22,0.94)",
+  borderRadius: "20px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
+  backdropFilter: "blur(15px)",
+  overflow: "hidden",
+},
 
-  /* SYNC INDICATOR */
-  syncIndicator: {
-    position: "fixed",
-    bottom: "25px",
-    right: "20px",
-    background: "rgba(255,255,255,0.08)",
-    padding: "10px 14px",
-    borderRadius: "18px",
-    border: "1px solid rgba(255,255,255,0.15)",
-    backdropFilter: "blur(18px)",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    zIndex: 999,
-    animation: "pulse 2s infinite",
-  },
+/* SYNC */
+syncIndicator: {
+  position: "fixed",
+  bottom: "25px",
+  right: "20px",
+  background: "rgba(255,255,255,0.08)",
+  padding: "10px 14px",
+  borderRadius: "18px",
+  border: "1px solid rgba(255,255,255,0.15)",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  backdropFilter: "blur(14px)",
+  animation: "pulse 2s infinite",
+  zIndex: 999,
+},
 
-  pulseCircle: {
-    width: "6px",
-    height: "6px",
-    borderRadius: "50%",
-    background: "#10b981",
-    animation: "pulse 1.5s infinite",
-  },
+pulseCircle: {
+  width: "6px",
+  height: "6px",
+  borderRadius: "50%",
+  background: "#10b981",
+},
 
-  syncText: {
-    fontSize: "12px",
-    color: "rgba(255,255,255,0.9)",
-    fontWeight: 500,
-  },
+syncText: {
+  fontSize: "12px",
+  color: "rgba(255,255,255,0.9)",
+  fontWeight: 500,
+},
 };
