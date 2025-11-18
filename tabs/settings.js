@@ -151,7 +151,6 @@ export default function Settings() {
         <h3 style={S.cardTitle}>🛡 Security Overview</h3>
 
         <InfoRow label="Device:" value={device} />
-        <InfoRow label="IP Address:" value={ip} />
         <InfoRow label="Last Login:" value={lastLogin} />
       </div>
 
