@@ -1,12 +1,22 @@
-// tabs/tokeninfo.js
+// tabs/tokeninfo.js — HOLOGRAPHIC TECH GOLD EDITION
+// PC = 3D hologram tracking + scans + subtle rotation
+// Mobile = breathing + hologram scans (no spin)
+// Dual-tone title (white → gold)
+// Ultra premium futuristic UI
+
 import { useEffect, useRef, useState, useMemo } from "react";
 
 export default function TokenInfo() {
   const coinRef = useRef(null);
+  const hologramRef = useRef(null);
+  const shineRef = useRef(null);
+
   const [isMobile, setIsMobile] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
 
-  /* ---------- Detect mobile + feature auto-rotate ---------- */
+  /* -------------------------------------------------------------
+     DEVICE DETECTION + FEATURE ROTATION
+  ------------------------------------------------------------- */
   useEffect(() => {
     const detect = () => setIsMobile(window.innerWidth <= 768);
     detect();
@@ -22,23 +32,24 @@ export default function TokenInfo() {
     };
   }, []);
 
-  /* ---------------- PC — Mouse movement (UNCHANGED) ---------------- */
+  /* -------------------------------------------------------------
+     PC MODE — 3D MOUSE TRACKING
+  ------------------------------------------------------------- */
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (isMobile) return;
 
     const handleMove = (e) => {
       if (!coinRef.current) return;
-
       const { innerWidth, innerHeight } = window;
 
-      const x = ((e.clientX / innerWidth) - 0.5) * 30;
-      const y = ((e.clientY / innerHeight) - 0.5) * -30;
+      const x = ((e.clientX / innerWidth) - 0.5) * 40;
+      const y = ((e.clientY / innerHeight) - 0.5) * -40;
 
       coinRef.current.style.transform = `
         rotateY(${x}deg)
         rotateX(${y}deg)
-        translateZ(0)
+        translateZ(20px)
       `;
     };
 
@@ -46,7 +57,9 @@ export default function TokenInfo() {
     return () => window.removeEventListener("mousemove", handleMove);
   }, [isMobile]);
 
-  /* ---------------- MOBILE — Remove gyro + add breathing animation ---------------- */
+  /* -------------------------------------------------------------
+     MOBILE MODE — BREATHING FLOATING ANIMATION
+  ------------------------------------------------------------- */
   useEffect(() => {
     if (!isMobile) return;
     if (!coinRef.current) return;
@@ -57,8 +70,7 @@ export default function TokenInfo() {
     const breathe = () => {
       if (!coinRef.current) return;
 
-      // Smooth breathing effect
-      const offset = Math.sin(frame / 60) * 6; // slow up/down
+      const offset = Math.sin(frame / 60) * 8;
       coinRef.current.style.transform = `translateY(${offset}px)`;
 
       frame++;
@@ -66,11 +78,12 @@ export default function TokenInfo() {
     };
 
     breathe();
-
     return () => cancelAnimationFrame(raf);
   }, [isMobile]);
 
-  /* ---------------- DATA ---------------- */
+  /* -------------------------------------------------------------
+     TOKEN META DATA
+  ------------------------------------------------------------- */
   const stats = useMemo(
     () => [
       { label: "TOKEN SYMBOL", value: "ILLYRIAN" },
@@ -87,46 +100,68 @@ export default function TokenInfo() {
         icon: "🔒",
         title: "Secure & Transparent",
         description:
-          "Verifiable on-chain activity with best-practice operational controls.",
+          "Verifiable on-chain activity with strict operational controls.",
       },
       {
         icon: "🚀",
         title: "High Growth Potential",
         description:
-          "Early investor alignment and structured token distribution.",
+          "Early investor alignment and structured distribution model.",
       },
       {
         icon: "🌍",
         title: "Global Ecosystem",
         description:
-          "Built for broad accessibility; Binance listing targeted for 2026.",
+          "Built for broad accessibility, aiming for Binance in 2026.",
       },
       {
         icon: "⚡",
         title: "Lightning Fast",
         description:
-          "BNB network provides near-instant confirmation and low fees.",
+          "BNB chain ensures ultra-low fees and near-instant confirmations.",
       },
     ],
     []
   );
-    /* ---------------- RENDER ---------------- */
+
+  /* -------------------------------------------------------------
+     RENDER START
+  ------------------------------------------------------------- */
   return (
     <div style={S.page}>
-      {/* HERO */}
+
+      {/* Floating gold particles */}
+      <div style={S.particlesLayer} />
+
+      {/* ================= HERO ================= */}
       <section style={S.hero}>
         <div style={S.heroInner}>
+
+          {/* TITLE */}
           <div style={S.titleWrap}>
             <h1 style={S.title}>
-              <span style={S.titleGradient}>ILLYRIAN TOKEN</span>
-              <br />
-              <span style={S.titleSymbol}>(ILLYRIAN)</span>
+              <span style={S.titleWhite}>ILLYRIAN </span>
+              <span style={S.titleGold}>TOKEN</span>
             </h1>
-            <div style={S.titleGlow} />
+            <div style={S.titleSymbol}>(ILLYRIAN)</div>
           </div>
 
-          {/* COIN */}
-          <div style={S.coinContainer}>
+          {/* ================= HOLOGRAPHIC COIN AREA ================= */}
+          <div style={S.coinZone}>
+
+            {/* Barely-visible gold neon ring */}
+            <div style={S.neonRing} />
+
+            {/* Radial hologram waves */}
+            <div style={S.radialWave} />
+
+            {/* Vertical hologram scan */}
+            <div ref={hologramRef} style={S.verticalScan} />
+
+            {/* Shine sweep animation */}
+            <div ref={shineRef} style={S.shineSweep} />
+
+            {/* Coin */}
             <img
               ref={coinRef}
               src="/images/illyriantokencircle.png"
@@ -135,25 +170,27 @@ export default function TokenInfo() {
             />
           </div>
 
+          {/* SUBTITLE */}
           <p style={S.subtitle}>
             The <span style={S.highlight}>next-generation</span> cryptocurrency
-            built on innovation, transparency, and{" "}
-            <span style={S.highlight}>unprecedented growth</span>.
+            engineered for <span style={S.highlight}>innovation</span>,
+            <span style={S.highlight}>transparency</span>, and unstoppable{" "}
+            <span style={S.highlight}>growth</span>.
           </p>
 
+          {/* BADGES */}
           <div style={S.badges}>
             <span style={S.badge}>🚀 Early Access</span>
             <span style={S.badge}>💎 Limited Supply</span>
-            <span style={S.badge}>🌙 Moon Potential</span>
+            <span style={S.badge}>🛰️ Tech-Enhanced</span>
           </div>
         </div>
       </section>
 
-      {/* ======================== */}
-      {/* TOKEN METRICS */}
-      {/* ======================== */}
+      {/* ================= TOKEN METRICS ================= */}
       <section style={S.section}>
         <h2 style={S.sectionTitle}>Token Metrics</h2>
+
         <div style={S.statsGrid}>
           {stats.map((s, i) => (
             <div key={i} style={S.statCard}>
@@ -163,12 +200,10 @@ export default function TokenInfo() {
           ))}
         </div>
       </section>
-
-      {/* ======================== */}
-      {/* FEATURES */}
-      {/* ======================== */}
+      {/* ================= FEATURES ================= */}
       <section style={S.section}>
         <h2 style={S.sectionTitle}>Why Choose ILLYRIAN?</h2>
+
         <div style={S.featuresGrid}>
           {features.map((f, i) => (
             <article
@@ -176,7 +211,7 @@ export default function TokenInfo() {
               style={{
                 ...S.featureCard,
                 transform: activeFeature === i ? "scale(1.05)" : "scale(0.96)",
-                opacity: activeFeature === i ? 1 : 0.85,
+                opacity: activeFeature === i ? 1 : 0.7,
               }}
             >
               <div style={S.featureIcon}>{f.icon}</div>
@@ -191,82 +226,155 @@ export default function TokenInfo() {
 }
 
 /* ===============================================================
-   STYLES — SAME AS YOUR ORIGINAL DESIGN (NOTHING CHANGED)
+   STYLES — PREMIUM HOLOGRAPHIC TECH GOLD UI
 =============================================================== */
 const S = {
   page: {
     minHeight: "100vh",
     color: "#fff",
     fontFamily: "'Inter','SF Pro Display',sans-serif",
-    background:
-      "radial-gradient(circle at 20% -20%, rgba(139,92,246,.2), transparent 45%), radial-gradient(circle at 80% -20%, rgba(59,130,246,.2), transparent 45%), #050914",
+    background: "#050914",
+    position: "relative",
+    overflowX: "hidden",
   },
 
-  hero: { padding: "34px 14px 30px", textAlign: "center" },
-  heroInner: { maxWidth: 1100, margin: "0 auto" },
+  /* Floating Particles */
+  particlesLayer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    background:
+      "radial-gradient(circle at 50% -20%, rgba(240,216,134,0.05), transparent 75%)",
+    zIndex: 0,
+    pointerEvents: "none",
+  },
 
-  titleWrap: { marginBottom: 10, position: "relative" },
+  /* ================= HERO ================= */
+  hero: { padding: "40px 14px 30px", textAlign: "center", position: "relative" },
+  heroInner: { maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 2 },
 
+  /* ================= TITLE ================= */
+  titleWrap: { marginBottom: 6 },
   title: {
     margin: 0,
     fontWeight: 900,
-    fontSize: "clamp(2.1rem,7vw,3.6rem)",
+    fontSize: "clamp(2.2rem,7vw,3.5rem)",
+    letterSpacing: "-0.03em",
+    lineHeight: 1.1,
   },
 
-  titleGradient: {
-    background:
-      "linear-gradient(135deg,#8b5cf6 0%,#3b82f6 50%,#06b6d4 100%)",
+  titleWhite: {
+    color: "#ffffff",
+  },
+
+  titleGold: {
+    background: "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
   },
 
   titleSymbol: {
-    color: "rgba(165,180,252,1)",
-    fontSize: "0.45em",
+    color: "rgba(230,230,230,0.75)",
+    fontSize: "0.9rem",
+    marginTop: 4,
+    letterSpacing: "0.05em",
   },
 
-  titleGlow: {
+  /* ================= COIN ZONE ================= */
+  coinZone: {
+    position: "relative",
+    width: "min(450px,85vw)",
+    height: "min(450px,85vw)",
+    margin: "20px auto 30px",
+    transformStyle: "preserve-3d",
+  },
+
+  /* Barely Visible Gold Neon Ring */
+  neonRing: {
     position: "absolute",
-    top: 60,
+    top: "50%",
     left: "50%",
-    transform: "translateX(-50%)",
-    width: 300,
-    height: 300,
+    width: "100%",
+    height: "100%",
+    transform: "translate(-50%, -50%)",
+    borderRadius: "50%",
+    boxShadow: "0 0 35px rgba(240,216,134,0.25), inset 0 0 25px rgba(240,216,134,0.15)",
+    opacity: 0.22,
+    pointerEvents: "none",
+  },
+
+  /* Radial Hologram Pulse */
+  radialWave: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "140%",
+    height: "140%",
+    transform: "translate(-50%,-50%)",
+    borderRadius: "50%",
     background:
-      "radial-gradient(circle, rgba(139,92,246,.35), transparent 70%)",
-    filter: "blur(60px)",
-    zIndex: -1,
+      "radial-gradient(circle, rgba(240,216,134,0.15) 0%, transparent 60%)",
+    animation: "pulseWave 4s ease-in-out infinite",
+    pointerEvents: "none",
   },
 
-  coinContainer: {
-    width: "min(420px,80vw)",
-    height: "min(420px,80vw)",
-    margin: "10px auto 22px",
-    perspective: "800px",
+  /* Vertical Hologram Scan Bar */
+  verticalScan: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "10%",
+    height: "100%",
+    background:
+      "linear-gradient(90deg, transparent, rgba(240,216,134,0.22), transparent)",
+    animation: "scanVertical 3.2s linear infinite",
+    pointerEvents: "none",
   },
 
+  /* Shine Sweep */
+  shineSweep: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background:
+      "linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)",
+    transform: "translateX(-150%)",
+    animation: "shine 6s ease-in-out infinite",
+    opacity: 0.3,
+    pointerEvents: "none",
+  },
+
+  /* COIN */
   coin: {
+    position: "relative",
     width: "100%",
     height: "100%",
     objectFit: "contain",
     transformStyle: "preserve-3d",
-    transition: "transform 0.15s ease-out",
+    transition: "transform 0.12s ease-out",
+    pointerEvents: "none",
     userSelect: "none",
   },
 
+  /* ================= SUBTITLE ================= */
   subtitle: {
     fontSize: "1rem",
-    margin: "0 auto",
     color: "rgba(255,255,255,.86)",
+    margin: "0 auto",
     maxWidth: 720,
+    lineHeight: 1.6,
   },
 
   highlight: {
-    background: "linear-gradient(45deg,#8b5cf6,#3b82f6)",
+    background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+    fontWeight: 700,
   },
 
+  /* ================= BADGES ================= */
   badges: {
     display: "flex",
     justifyContent: "center",
@@ -276,30 +384,33 @@ const S = {
   },
 
   badge: {
-    background: "rgba(139,92,246,.15)",
-    border: "1px solid rgba(139,92,246,.3)",
-    color: "#8b5cf6",
+    background: "rgba(240,216,134,.08)",
+    border: "1px solid rgba(240,216,134,.25)",
+    color: "#F0D886",
     padding: "8px 16px",
     borderRadius: 20,
     fontSize: 12,
     fontWeight: 800,
   },
 
+  /* ================= SECTION TITLES ================= */
   section: { padding: "38px 14px" },
 
   sectionTitle: {
     textAlign: "center",
     marginBottom: 26,
     fontSize: "clamp(1.8rem,5vw,2.4rem)",
-    background: "linear-gradient(135deg,#fff,#a5b4fc)",
+    background: "linear-gradient(135deg,#F0D886,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+    fontWeight: 800,
   },
 
+  /* ================= TOKEN METRICS ================= */
   statsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
-    gap: 16,
+    gap: 18,
     maxWidth: 980,
     margin: "0 auto",
   },
@@ -310,6 +421,7 @@ const S = {
     padding: "22px 18px",
     borderRadius: 16,
     textAlign: "center",
+    backdropFilter: "blur(4px)",
   },
 
   statLabel: {
@@ -321,15 +433,16 @@ const S = {
   statValue: {
     fontSize: 18,
     fontWeight: 900,
-    background: "linear-gradient(135deg,#fff,#a5b4fc)",
+    background: "linear-gradient(135deg,#F0D886,#ffffff)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
   },
 
+  /* ================= FEATURES ================= */
   featuresGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
-    gap: 20,
+    gap: 22,
     maxWidth: 1100,
     margin: "0 auto",
   },
@@ -339,8 +452,9 @@ const S = {
     border: "1px solid rgba(255,255,255,.1)",
     padding: "24px 20px",
     borderRadius: 16,
-    transition: "all .3s ease",
     textAlign: "center",
+    transition: "all .3s ease",
+    backdropFilter: "blur(6px)",
   },
 
   featureIcon: { fontSize: "2.4rem", marginBottom: 10 },
@@ -348,9 +462,10 @@ const S = {
   featureTitle: {
     fontSize: "1.1rem",
     marginBottom: 8,
-    background: "linear-gradient(135deg,#fff,#a5b4fc)",
+    background: "linear-gradient(135deg,#F8EAA0,#ffffff)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+    fontWeight: 800,
   },
 
   featureDesc: {
@@ -360,3 +475,25 @@ const S = {
   },
 };
 
+/* ===============================================================
+   KEYFRAMES — HOLOGRAM + SHINE + PULSE
+=============================================================== */
+<style>
+{`
+@keyframes scanVertical {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(250%); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-180%); }
+  100% { transform: translateX(180%); }
+}
+
+@keyframes pulseWave {
+  0% { opacity: 0.12; transform: translate(-50%,-50%) scale(1); }
+  50% { opacity: 0.22; transform: translate(-50%,-50%) scale(1.12); }
+  100% { opacity: 0.12; transform: translate(-50%,-50%) scale(1); }
+}
+`}
+</style>
