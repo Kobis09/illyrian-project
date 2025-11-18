@@ -1,35 +1,37 @@
-// tabs/profile.js — FULLY PREMIUM ILLYRIAN VERSION
+// tabs/profile.js — FULLY FUNCTIONAL PREMIUM VERSION (INLINE FIELDS)
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import {
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 import {
   sendEmailVerification,
   updateEmail,
   reauthenticateWithCredential,
   EmailAuthProvider,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
-
   const [username, setUsername] = useState("");
-  const [newUsername, setNewUsername] = useState("");
+  const [usdtWallet, setUsdtWallet] = useState("");
+  const [tokenWallet, setTokenWallet] = useState("");
+  const [loading, setLoading] = useState(true);
 
+  const [emailVerified, setEmailVerified] = useState(false);
+
+  // Email change states
   const [newEmail, setNewEmail] = useState("");
   const [passwordForEmailChange, setPasswordForEmailChange] = useState("");
 
-  const [usdtWallet, setUsdtWallet] = useState("");
-  const [tokenWallet, setTokenWallet] = useState("");
+  // Username change states
+  const [newUsername, setNewUsername] = useState("");
 
-  const [loading, setLoading] = useState(true);
-  const [statusMsg, setStatusMsg] = useState("");
-
-  const [emailVerified, setEmailVerified] = useState(false);
+  // Status messages
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     const u = auth.currentUser;
@@ -41,85 +43,92 @@ export default function Profile() {
     const load = async () => {
       try {
         const snap = await getDoc(doc(db, "users", u.uid));
-
         if (snap.exists()) {
           const data = snap.data();
-
           setUsername(data.username || "");
-          setNewUsername(data.username || "");
           setUsdtWallet(data.usdtWallet || "");
           setTokenWallet(data.tokenWallet || "");
         }
       } catch (err) {
         console.log("Profile load failed:", err);
       }
-
       setLoading(false);
     };
 
     load();
   }, []);
 
-  const saveUsername = async () => {
+  const refreshUser = async () => {
+    await auth.currentUser.reload();
+    setEmailVerified(auth.currentUser.emailVerified);
+  };
+
+  /* ---------------- EMAIL VERIFICATION ---------------- */
+  const handleSendVerification = async () => {
+    try {
+      await sendEmailVerification(auth.currentUser);
+      setMsg("📩 Verification email sent!");
+    } catch (err) {
+      setMsg("❌ Could not send email.");
+      console.log(err);
+    }
+  };
+
+  /* ---------------- CHANGE USERNAME ---------------- */
+  const handleUsernameChange = async () => {
     if (!newUsername.trim()) return;
 
     try {
       await updateDoc(doc(db, "users", user.uid), {
-        username: newUsername.trim(),
+        username: newUsername,
       });
-
-      setUsername(newUsername.trim());
-      setStatusMsg("Username updated successfully!");
-      setTimeout(() => setStatusMsg(""), 2500);
+      setUsername(newUsername);
+      setNewUsername("");
+      setMsg("✅ Username updated!");
     } catch (err) {
-      console.log("Failed to update username:", err);
+      console.log(err);
+      setMsg("❌ Failed to update username.");
     }
   };
 
-  const startEmailVerification = async () => {
-    try {
-      await sendEmailVerification(auth.currentUser);
-      setStatusMsg("Verification email sent! Check your inbox.");
-      setTimeout(() => setStatusMsg(""), 3000);
-    } catch (err) {
-      console.log("Email verification error:", err);
-      setStatusMsg("Error sending verification email.");
-    }
-  };
-
+  /* ---------------- CHANGE EMAIL ---------------- */
   const handleEmailChange = async () => {
     if (!newEmail.trim() || !passwordForEmailChange.trim()) return;
 
     try {
-      const credential = EmailAuthProvider.credential(
+      const cred = EmailAuthProvider.credential(
         user.email,
         passwordForEmailChange
       );
 
-      await reauthenticateWithCredential(user, credential);
-
-      await updateEmail(user, newEmail.trim());
+      await reauthenticateWithCredential(user, cred);
+      await updateEmail(user, newEmail);
 
       await updateDoc(doc(db, "users", user.uid), {
-        email: newEmail.trim(),
+        email: newEmail,
       });
 
-      setStatusMsg("Email updated. Please verify your new email!");
-      setTimeout(() => setStatusMsg(""), 3500);
+      setMsg("✅ Email updated — please verify your new email.");
+      setNewEmail("");
+      setPasswordForEmailChange("");
+
+      refreshUser();
     } catch (err) {
-      console.log("Email change failed:", err);
-      setStatusMsg("Email update failed.");
+      console.log(err);
+      setMsg("❌ Email update failed.");
     }
   };
 
-  const resetPassword = async () => {
+  /* ---------------- RESET PASSWORD ---------------- */
+  const handlePasswordReset = async () => {
+    if (!emailVerified) return;
+
     try {
       await sendPasswordResetEmail(auth, user.email);
-      setStatusMsg("Password reset email sent!");
-      setTimeout(() => setStatusMsg(""), 3000);
+      setMsg("📩 Reset email sent!");
     } catch (err) {
-      console.log("Password reset error:", err);
-      setStatusMsg("Failed to send reset email.");
+      console.log(err);
+      setMsg("❌ Failed to send reset email.");
     }
   };
 
@@ -134,94 +143,84 @@ export default function Profile() {
     <div style={S.page}>
       <h2 style={S.title}>Your Profile</h2>
 
-      {/* 🔥 EMAIL VERIFICATION BOX (AT TOP) */}
-      {!emailVerified && (
-        <div style={S.verifyBox}>
-          <h3 style={S.verifyTitle}>⚠ Email Not Verified</h3>
-          <p style={S.verifyDesc}>
-            Please verify your email to fully secure your Illyrian account.
-          </p>
+      {msg && <p style={S.msg}>{msg}</p>}
 
-          <div style={S.verifyBadge}>UNVERIFIED</div>
-
-          <button style={S.verifyBtn} onClick={startEmailVerification}>
-            Send Verification Email
-          </button>
-        </div>
-      )}
-
-      {emailVerified && (
-        <div style={S.verifyBoxVerified}>
-          <h3 style={S.verifyTitleVerified}>✔ Email Verified</h3>
-
-          <div style={S.verifyBadgeVerified}>VERIFIED</div>
-        </div>
-      )}
-
-      {/* USER INFO */}
+      {/* ACCOUNT INFO */}
       <div style={S.card}>
         <h3 style={S.cardTitle}>👤 Account Info</h3>
+
+        <div style={S.row}>
+          <span style={S.label}>Username:</span>
+          <span style={S.value}>{username}</span>
+        </div>
+
+        <div style={S.inputRow}>
+          <input
+            style={S.input}
+            placeholder="New username"
+            value={newUsername}
+            onChange={(e) => setNewUsername(e.target.value)}
+          />
+          <button style={S.smallBtn} onClick={handleUsernameChange}>
+            Save
+          </button>
+        </div>
 
         <div style={S.row}>
           <span style={S.label}>Email:</span>
           <span style={S.value}>{user?.email}</span>
         </div>
 
-        <div style={S.row}>
-          <span style={S.label}>User ID:</span>
-          <span style={S.value}>{user?.uid}</span>
+        <div style={S.verifyRow}>
+          {emailVerified ? (
+            <span style={S.verified}>✔ Email Verified</span>
+          ) : (
+            <button style={S.verifyBtn} onClick={handleSendVerification}>
+              Verify Email
+            </button>
+          )}
         </div>
-      </div>
 
-      {/* USERNAME CHANGE */}
-      <div style={S.card}>
-        <h3 style={S.cardTitle}>✏ Change Username</h3>
+        {/* Change Email */}
+        <div style={S.subTitle}>Change Email</div>
+        <div style={S.inputRow}>
+          <input
+            style={S.input}
+            placeholder="New email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+          />
+        </div>
 
-        <input
-          value={newUsername}
-          onChange={(e) => setNewUsername(e.target.value)}
-          style={S.input}
-          placeholder="New username"
-        />
+        <div style={S.inputRow}>
+          <input
+            style={S.input}
+            placeholder="Password"
+            type="password"
+            value={passwordForEmailChange}
+            onChange={(e) => setPasswordForEmailChange(e.target.value)}
+          />
+          <button style={S.smallBtn} onClick={handleEmailChange}>
+            Update
+          </button>
+        </div>
 
-        <button style={S.actionBtn} onClick={saveUsername}>
-          Update Username
-        </button>
-      </div>
-
-      {/* EMAIL CHANGE */}
-      <div style={S.card}>
-        <h3 style={S.cardTitle}>📧 Change Email</h3>
-
-        <input
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
-          style={S.input}
-          placeholder="New email address"
-        />
-
-        <input
-          type="password"
-          value={passwordForEmailChange}
-          onChange={(e) => setPasswordForEmailChange(e.target.value)}
-          style={S.input}
-          placeholder="Enter password to confirm"
-        />
-
-        <button style={S.actionBtn} onClick={handleEmailChange}>
-          Update Email
-        </button>
-      </div>
-
-      {/* PASSWORD RESET */}
-      <div style={S.card}>
-        <h3 style={S.cardTitle}>🔐 Reset Password</h3>
-
-        <button style={S.actionBtn} onClick={resetPassword}>
+        {/* Reset Password */}
+        <div style={S.subTitle}>Reset Password</div>
+        <button
+          style={{
+            ...S.resetBtn,
+            opacity: emailVerified ? 1 : 0.4,
+            cursor: emailVerified ? "pointer" : "not-allowed",
+          }}
+          disabled={!emailVerified}
+          onClick={handlePasswordReset}
+        >
           Send Reset Email
         </button>
       </div>
-      {/* WALLETS READ-ONLY */}
+
+      {/* WALLETS */}
       <div style={S.card}>
         <h3 style={S.cardTitle}>💰 Wallet Information</h3>
 
@@ -234,26 +233,21 @@ export default function Profile() {
           <span style={S.label}>Token Wallet:</span>
           <span style={S.value}>{tokenWallet || "Not set"}</span>
         </div>
-
-        <p style={S.notice}>
-          To update your wallets, go to the <strong>Invest & Mine</strong> tab.
-        </p>
       </div>
 
-      {/* STATUS MESSAGE */}
-      {statusMsg && <p style={S.statusMsg}>{statusMsg}</p>}
+      <p style={S.notice}>
+        To update wallets, go to <strong>Invest & Mine</strong>.
+      </p>
     </div>
   );
 }
 
-/* ========================= PREMIUM ILLYRIAN STYLES ========================= */
-
+/* ---------------------------- STYLES ---------------------------- */
 const S = {
   page: {
     padding: "26px 16px 40px",
     color: "white",
   },
-
   title: {
     textAlign: "center",
     fontSize: "clamp(1.8rem, 6vw, 2.4rem)",
@@ -263,86 +257,15 @@ const S = {
     WebkitTextFillColor: "transparent",
     fontWeight: 800,
   },
-
-  /* EMAIL VERIFICATION BOX (UNVERIFIED) */
-  verifyBox: {
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: "18px",
-    padding: "22px 18px",
-    marginBottom: "24px",
-    backdropFilter: "blur(12px)",
-    boxShadow: "0 0 35px rgba(255,165,0,0.18)",
+  msg: {
+    background: "rgba(255,255,255,0.1)",
+    padding: "10px 12px",
+    borderRadius: "10px",
+    marginBottom: "18px",
     textAlign: "center",
+    color: "#d0e7ff",
+    fontSize: "0.9rem",
   },
-
-  verifyTitle: {
-    fontSize: "1.2rem",
-    marginBottom: "8px",
-    fontWeight: 700,
-    color: "rgba(255,190,120,1)",
-  },
-
-  verifyDesc: {
-    fontSize: "0.95rem",
-    color: "rgba(255,255,255,0.8)",
-    marginBottom: "14px",
-  },
-
-  verifyBadge: {
-    display: "inline-block",
-    padding: "6px 18px",
-    borderRadius: "30px",
-    background: "rgba(255,165,0,0.18)",
-    border: "1px solid rgba(255,165,0,0.45)",
-    color: "orange",
-    fontWeight: 700,
-    marginBottom: "14px",
-  },
-
-  verifyBtn: {
-    padding: "12px 20px",
-    borderRadius: "12px",
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4)",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    width: "100%",
-    fontWeight: 700,
-    fontSize: "1rem",
-    boxShadow: "0 6px 18px rgba(139,92,246,0.35)",
-  },
-
-  /* VERIFIED STYLE */
-  verifyBoxVerified: {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: "18px",
-    padding: "22px 18px",
-    marginBottom: "24px",
-    backdropFilter: "blur(12px)",
-    textAlign: "center",
-    boxShadow: "0 0 30px rgba(16,185,129,0.22)",
-  },
-
-  verifyTitleVerified: {
-    fontSize: "1.2rem",
-    marginBottom: "8px",
-    fontWeight: 700,
-    color: "rgb(16,185,129)",
-  },
-
-  verifyBadgeVerified: {
-    display: "inline-block",
-    padding: "6px 20px",
-    borderRadius: "30px",
-    background: "rgba(16,185,129,0.15)",
-    border: "1px solid rgba(16,185,129,0.45)",
-    color: "rgb(16,185,129)",
-    fontWeight: 700,
-  },
-
-  /* CARDS */
   card: {
     background: "rgba(255,255,255,0.05)",
     border: "1px solid rgba(255,255,255,0.08)",
@@ -351,7 +274,6 @@ const S = {
     marginBottom: "22px",
     backdropFilter: "blur(12px)",
   },
-
   cardTitle: {
     fontSize: "1.2rem",
     marginBottom: "16px",
@@ -360,19 +282,20 @@ const S = {
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
   },
-
-  /* ROWS */
   row: {
     display: "flex",
     justifyContent: "space-between",
     marginBottom: "12px",
   },
-
+  inputRow: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "12px",
+  },
   label: {
     color: "rgba(255,255,255,0.7)",
     fontSize: "0.95rem",
   },
-
   value: {
     color: "rgba(255,255,255,0.95)",
     fontWeight: 600,
@@ -380,43 +303,58 @@ const S = {
     maxWidth: "60%",
     wordBreak: "break-word",
   },
-
-  /* INPUTS */
   input: {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: "12px",
+    flex: 1,
+    padding: "10px 12px",
+    borderRadius: "10px",
+    background: "rgba(255,255,255,0.07)",
     border: "1px solid rgba(255,255,255,0.15)",
-    background: "rgba(255,255,255,0.06)",
     color: "white",
-    marginBottom: "12px",
-    fontSize: "0.95rem",
+    fontSize: "0.9rem",
   },
-
-  actionBtn: {
-    width: "100%",
-    padding: "12px 20px",
-    borderRadius: "12px",
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4)",
-    color: "#fff",
+  smallBtn: {
+    padding: "10px 14px",
+    background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
     border: "none",
+    borderRadius: "10px",
+    color: "white",
+    fontWeight: 600,
     cursor: "pointer",
-    fontWeight: 700,
-    marginTop: "4px",
-    boxShadow: "0 8px 20px rgba(139,92,246,0.28)",
   },
-
+  verifyRow: {
+    marginBottom: "12px",
+  },
+  verified: {
+    color: "#10b981",
+    fontWeight: 700,
+  },
+  verifyBtn: {
+    padding: "10px 16px",
+    borderRadius: "10px",
+    border: "1px solid rgba(255,255,255,0.25)",
+    background: "rgba(255,255,255,0.05)",
+    color: "white",
+    cursor: "pointer",
+  },
+  subTitle: {
+    marginTop: "14px",
+    marginBottom: "6px",
+    color: "rgba(255,255,255,0.75)",
+    fontWeight: 600,
+  },
+  resetBtn: {
+    marginTop: "10px",
+    padding: "12px 16px",
+    background: "rgba(255,255,255,0.07)",
+    borderRadius: "10px",
+    border: "1px solid rgba(255,255,255,0.15)",
+    color: "white",
+    fontWeight: 600,
+  },
   notice: {
-    marginTop: "8px",
     textAlign: "center",
     color: "rgba(255,255,255,0.65)",
     fontSize: "0.9rem",
   },
-
-  statusMsg: {
-    textAlign: "center",
-    marginTop: "12px",
-    fontSize: "0.95rem",
-    color: "rgba(255,255,255,0.9)",
-  },
 };
+
