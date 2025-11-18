@@ -1,4 +1,4 @@
-// components/TabsNav.jsx - FIXED + PROFILE/SETTINGS ROW ADDED
+// components/TabsNav.jsx - POLISHED + SETTINGS/PROFILE ROW (NO SHIMMER, NO 2nd LOGOUT)
 import { useState, useEffect } from "react";
 
 export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
@@ -17,7 +17,6 @@ export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 🔥 Your original tabs — NOT modified
   const tabs = [
     { key: "tokenInfo", label: "Token Info", shortLabel: "Token", icon: "🪙" },
     { key: "instructions", label: "Instructions", shortLabel: "Guide", icon: "📚" },
@@ -30,22 +29,23 @@ export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
 
   const gridRowStyle = (cols) => ({
     display: "grid",
-    gridTemplateColumns: `repeat(${cols},1fr)`,
+    gridTemplateColumns: `repeat(${cols}, 1fr)`,
     gap: "6px",
+    alignItems: "stretch",
   });
 
   const centeredRowStyle = (cols) => ({
     display: "grid",
-    gridTemplateColumns: `repeat(${cols},1fr)`,
+    gridTemplateColumns: `repeat(${cols}, 1fr)`,
     gap: "6px",
+    alignItems: "stretch",
   });
 
   const emptyCell = {};
 
   return (
     <div style={styles.navWrapper}>
-      
-      {/* ⭐ NEW ROW ABOVE — Profile, Settings, Logout */}
+      {/* Row ABOVE: Settings + Profile only */}
       <div style={styles.accountRow}>
         <div
           style={styles.accountBtn}
@@ -60,18 +60,11 @@ export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
         >
           👤 Profile
         </div>
-
-        <div
-          style={styles.accountBtn}
-          onClick={onLogout}
-        >
-          🚪 Logout
-        </div>
       </div>
 
-      {/* ⭐ ORIGINAL NAV BELOW — NOT TOUCHED */}
       <div style={styles.navContainer}>
         {isMobile ? (
+          // 👉 MOBILE LAYOUT
           <div style={styles.tabsGridContainer}>
             {gridCols === 4 ? (
               <>
@@ -140,6 +133,7 @@ export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
             )}
           </div>
         ) : (
+          // 👉 DESKTOP: SAME AS BEFORE
           <div style={styles.tabsScrollContainer}>
             {tabs.map((tab) => (
               <TabButton
@@ -170,15 +164,11 @@ export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
             transition: transform 0.1s ease;
           }
         }
-
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
       `}</style>
     </div>
   );
 }
+
 function TabButton({ tab, selectedTab, setSelectedTab, isMobile }) {
   return (
     <div
@@ -199,7 +189,6 @@ function TabButton({ tab, selectedTab, setSelectedTab, isMobile }) {
         >
           {tab.icon}
         </div>
-
         <div
           style={{
             ...styles.tabLabel,
@@ -210,16 +199,13 @@ function TabButton({ tab, selectedTab, setSelectedTab, isMobile }) {
         </div>
       </div>
 
-      {selectedTab === tab.key && (
-        <>
-          <div style={styles.activeGlow} />
-          <div style={styles.activePulse} />
-        </>
-      )}
+      {/* Removed shimmer bar; just keep subtle glow */}
+      {selectedTab === tab.key && <div style={styles.activeGlow} />}
     </div>
   );
 }
 
+// ⭐ POLISHED STYLES
 const styles = {
   navWrapper: {
     position: "relative",
@@ -227,7 +213,7 @@ const styles = {
     zIndex: 10,
   },
 
-  /* ⭐ NEW ACCOUNT ROW */
+  /* Row for Settings + Profile */
   accountRow: {
     display: "flex",
     justifyContent: "center",
@@ -274,8 +260,8 @@ const styles = {
 
   tabItem: {
     position: "relative",
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.08)",
+    background: "rgba(255, 255, 255, 0.05)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
     borderRadius: "12px",
     padding: "12px 14px",
     cursor: "pointer",
@@ -294,9 +280,9 @@ const styles = {
   },
 
   tabItemActive: {
-    background: "rgba(139,92,246,0.18)",
-    border: "1px solid rgba(139,92,246,0.45)",
-    boxShadow: "0 4px 18px rgba(139,92,246,0.3)",
+    background: "rgba(139, 92, 246, 0.18)",
+    border: "1px solid rgba(139, 92, 246, 0.45)",
+    boxShadow: "0 4px 18px rgba(139, 92, 246, 0.3)",
   },
 
   tabContent: {
@@ -312,7 +298,7 @@ const styles = {
     fontSize: "18px",
     width: "30px",
     height: "30px",
-    background: "rgba(139,92,246,0.12)",
+    background: "rgba(139, 92, 246, 0.12)",
     borderRadius: "8px",
     display: "flex",
     alignItems: "center",
@@ -341,18 +327,8 @@ const styles = {
   activeGlow: {
     position: "absolute",
     inset: 0,
-    background: "rgba(139,92,246,0.15)",
+    background: "rgba(139, 92, 246, 0.15)",
     borderRadius: "12px",
-  },
-
-  activePulse: {
-    position: "absolute",
-    top: 0,
-    left: "-100%",
-    width: "60%",
-    height: "100%",
-    background:
-      "linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)",
-    animation: "shimmer 2.8s ease-in-out infinite",
+    pointerEvents: "none",
   },
 };
