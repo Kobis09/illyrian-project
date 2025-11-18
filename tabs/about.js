@@ -1,12 +1,22 @@
-// tabs/about.js — clean vertical layout (roadmap above text, no grid mess)
+// tabs/about.js — Illyrian Gold Premium Rebuild (A2Z)
+// Matching the official coin's colors and imperial theme
+
 import { useEffect, useState } from "react";
 
 export default function About() {
   const [fade, setFade] = useState(false);
+
   useEffect(() => {
     setFade(true);
-    setTimeout(() => setFade(false), 5000);
+    setTimeout(() => setFade(false), 4500);
   }, []);
+
+  const GOLD = "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)";
+  const GOLD_TEXT = {
+    background: GOLD,
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  };
 
   const milestones = [
     {
@@ -43,45 +53,52 @@ export default function About() {
 
   return (
     <div style={styles.page}>
-      {/* Hero Section */}
+      {/* Floating gold particles background */}
+      <div style={styles.particlesLayer}></div>
+
+      {/* HERO SECTION */}
       <section style={styles.hero}>
-        <div style={styles.heroContent}>
-          <div style={styles.titleContainer}>
-            <h1 style={styles.mainTitle}>
-              <span style={styles.titleGradient}>About Illyrian</span>
-            </h1>
-            <div style={styles.titleGlow}></div>
-          </div>
+        <h1 style={styles.title}>
+          <span style={styles.titleGradient}>About Illyrian Token</span>
+        </h1>
 
-          <p style={styles.heroSubtitle}>
-            Building the <span style={styles.highlight}>future of finance</span>{" "}
-            through innovation, community, and{" "}
-            <span style={styles.highlight}>transformative technology</span>.
-          </p>
+        <p style={styles.heroSubtitle}>
+          Building the{" "}
+          <span style={styles.highlight}>future of finance</span> through
+          innovation, community strength, and{" "}
+          <span style={styles.highlight}>transformative vision</span>.
+        </p>
 
-          <div style={styles.ctaBadges}>
-            <span style={styles.ctaBadge}>🚀 Innovative</span>
-            <span style={styles.ctaBadge}>🌍 Global</span>
-            <span style={styles.ctaBadge}>💫 Visionary</span>
-          </div>
+        <div style={styles.badges}>
+          <span style={styles.badge}>🚀 Innovative</span>
+          <span style={styles.badge}>🌍 Global</span>
+          <span style={styles.badge}>💫 Visionary</span>
         </div>
       </section>
 
-      {/* Journey Section */}
-      <section style={styles.storySection}>
+      {/* ROADMAP SECTION */}
+      <section style={styles.roadmapSection}>
         <h2 style={styles.sectionTitle}>Our Journey</h2>
 
-        {/* Roadmap FIRST */}
-        <div style={styles.milestones}>
-          <h3 style={styles.milestonesTitle}>Our Roadmap</h3>
-          {milestones.map((milestone, index) => (
-            <div key={index} style={styles.milestoneCard}>
+        <div style={styles.roadmapWrapper}>
+          <h3 style={styles.roadmapTitle}>Our Roadmap</h3>
+
+          {milestones.map((milestone, idx) => (
+            <div
+              key={idx}
+              style={{
+                ...styles.milestoneCard,
+                animation: `riseUp 0.6s ease ${idx * 0.15}s forwards`,
+                opacity: 0,
+              }}
+            >
               <div style={styles.milestoneYear}>{milestone.year}</div>
-              <h4 style={styles.milestoneTitle}>{milestone.title}</h4>
-              <ul style={styles.achievementsList}>
-                {milestone.achievements.map((achievement, achIndex) => (
-                  <li key={achIndex} style={styles.achievementItem}>
-                    {achievement}
+              <div style={styles.milestoneSubtitle}>{milestone.title}</div>
+
+              <ul style={styles.milestoneList}>
+                {milestone.achievements.map((ach, aIdx) => (
+                  <li key={aIdx} style={styles.milestoneItem}>
+                    {ach}
                   </li>
                 ))}
               </ul>
@@ -89,83 +106,81 @@ export default function About() {
           ))}
         </div>
 
-        {/* Then Story BELOW */}
-        <div style={styles.storyText}>
-          <p style={styles.storyParagraph}>
+        {/* STORY SECTION */}
+        <div style={styles.storyBox}>
+          <p style={styles.storyText}>
             Our token's success is fundamentally built on community trust and
             collective investment. As we cultivate a strong, engaged community,
             we establish the reputation necessary for sustainable growth and
-            market presence. This foundation of trust is crucial as we progress
-            toward our strategic goal of Binance listing by 2026, positioning
-            ILLYRIAN Token for significant market impact and long-term success.{" "}
-            <span style={styles.highlight}>We aim high</span> with{" "}
-            <span style={styles.highlight}>early investors trust!</span>.
+            market presence. This foundation is crucial as we progress toward
+            our strategic goal of Binance listing by 2026.
           </p>
 
-          <p style={styles.storyParagraph}>
-            To ensure seamless processing of your investments, please verify
-            that all wallet addresses are entered accurately. Our team
-            meticulously reviews every transaction, investment, and mining
-            operation to maintain platform integrity and security.
+          <p style={styles.storyText}>
+            To ensure seamless processing of your investments, please verify all
+            wallet addresses. Our team meticulously reviews each transaction,
+            investment, and mining operation to maintain platform integrity and
+            security.
           </p>
 
-          <p style={styles.storyParagraph}>
-            We are committed to delivering exceptional value to our investors.
-            Each verified investment receives token allocations with a minimum
-            guaranteed return of 300%, with potential for significantly higher
-            yields based on market conditions and investment tiers.
+          <p style={styles.storyText}>
+            We deliver exceptional value to investors: each verified investment
+            receives token allocations with a guaranteed minimum return of 300%.
+            Additional returns may vary based on market performance and investor
+            tier.
           </p>
 
-          <p style={styles.storyParagraph}>
-            We strongly encourage all users to thoroughly review the
-            "Instructions" section to fully understand our platform's
-            operational framework. This knowledge will help you maximize your
-            investment potential while gaining insight into our long-term
-            vision and growth strategy.
+          <p style={styles.storyText}>
+            To maximize your opportunity, we encourage all users to review the
+            platform instructions to better understand the Invest & Mine system,
+            reward tiers, and long-term strategy.
           </p>
 
-          <p style={styles.storyParagraph}>
-            The trust and commitment of our early investors form the cornerstone
-            of our ambitious growth strategy. We are positioned to exceed market
-            expectations through innovative tokenomics, strategic partnerships,
-            and continuous platform development.
-          </p>
-
-          {/* 🧾 Whitepaper Section */}
-          <p style={styles.storyParagraph}>
-            Dive deeper into our project’s foundation, vision, and future plans
-            by exploring the{" "}
+          <p style={styles.storyText}>
+            Dive deeper into our foundation and long-term vision by exploring
+            our{" "}
             <a
               href="https://illyrian-token-foundation.gitbook.io/illyrian-token-whitepaper"
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                background:
-                  "linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontWeight: 700,
-                textDecoration: "none",
-                cursor: "pointer",
-              }}
+              style={styles.whitepaperLink}
             >
               Whitepaper
             </a>
-            . Learn more about how ILLYRIAN Token is building the future of
-            decentralized finance.
+            .
           </p>
         </div>
       </section>
 
-      {/* Connection Indicator */}
+      {/* CONNECTION INDICATOR */}
       {fade && (
         <div style={styles.syncIndicator}>
-          <div style={styles.pulseCircle}></div>
-          <span style={styles.syncText}>
-            ✨ Connected to Illyrian Vision Network
-          </span>
+          <div style={styles.pulseDot}></div>
+          <span style={styles.syncLabel}>✨ Connected to Illyrian Vision</span>
         </div>
       )}
+
+      {/* KEYFRAMES */}
+      <style>
+        {`
+        @keyframes riseUp {
+          0% { transform: translateY(20px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes subtleGlow {
+          0% { box-shadow: 0 0 15px rgba(240,216,134,0.15); }
+          50% { box-shadow: 0 0 35px rgba(240,216,134,0.32); }
+          100% { box-shadow: 0 0 15px rgba(240,216,134,0.15); }
+        }
+
+        @keyframes float {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+          100% { transform: translateY(0); }
+        }
+      `}
+      </style>
     </div>
   );
 }
@@ -173,158 +188,205 @@ export default function About() {
 const styles = {
   page: {
     minHeight: "100vh",
+    padding: "0 18px 70px",
+    position: "relative",
+    background: "#0F1114",
+    color: "white",
     overflowX: "hidden",
-    fontFamily:
-      "'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,sans-serif",
-    padding: "0 16px",
   },
 
-  hero: { padding: "40px 0", textAlign: "center" },
-  heroContent: { maxWidth: "800px", margin: "0 auto" },
-  titleContainer: { position: "relative", marginBottom: "30px" },
-  mainTitle: {
-    fontSize: "clamp(2.2rem, 6vw, 4rem)",
-    fontWeight: 800,
-  },
-  titleGradient: {
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  },
-  titleGlow: {
+  particlesLayer: {
     position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%,-50%)",
+    top: 0,
+    left: 0,
     width: "100%",
     height: "100%",
     background:
-      "radial-gradient(circle,rgba(139,92,246,0.3) 0%,transparent 70%)",
-    filter: "blur(60px)",
-    zIndex: -1,
+      "radial-gradient(circle at 50% 20%, rgba(255,215,140,0.065), transparent 70%)",
+    animation: "float 9s ease-in-out infinite",
+    zIndex: 0,
   },
-  heroSubtitle: {
-    fontSize: "clamp(1rem,2.5vw,1.3rem)",
-    color: "rgba(255,255,255,0.8)",
-    margin: "0 auto 32px",
-    maxWidth: "600px",
+
+  hero: {
+    textAlign: "center",
+    padding: "40px 0 30px",
+    position: "relative",
+    zIndex: 2,
   },
-  highlight: {
-    background: "linear-gradient(45deg,#8b5cf6,#3b82f6)",
+
+  title: {
+    fontFamily: "'Cinzel', serif",
+    fontSize: "clamp(2.4rem, 7vw, 4rem)",
+    fontWeight: 700,
+    marginBottom: "14px",
+  },
+
+  titleGradient: {
+    background: "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    fontWeight: 600,
+    textShadow: "0 0 25px rgba(240,216,134,0.25)",
   },
-  ctaBadges: {
+
+  heroSubtitle: {
+    color: "rgba(255,255,255,0.82)",
+    fontSize: "1.1rem",
+    maxWidth: "600px",
+    margin: "0 auto 22px",
+    lineHeight: 1.7,
+  },
+
+  highlight: {
+    background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontWeight: 700,
+  },
+
+  badges: {
     display: "flex",
     justifyContent: "center",
-    flexWrap: "wrap",
     gap: "12px",
-  },
-  ctaBadge: {
-    background: "rgba(139,92,246,0.15)",
-    border: "1px solid rgba(139,92,246,0.3)",
-    color: "#8b5cf6",
-    padding: "10px 16px",
-    borderRadius: "50px",
-    fontWeight: 600,
+    flexWrap: "wrap",
   },
 
-  storySection: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "40px 0 80px",
+  badge: {
+    padding: "8px 14px",
+    borderRadius: "50px",
+    border: "1px solid rgba(240,216,134,0.35)",
+    background: "rgba(240,216,134,0.08)",
+    color: "#E1C46D",
+    fontWeight: 600,
+    fontSize: "0.9rem",
   },
+
+  roadmapSection: {
+    position: "relative",
+    zIndex: 2,
+    paddingBottom: "40px",
+  },
+
   sectionTitle: {
     textAlign: "center",
-    fontSize: "clamp(1.8rem, 5vw, 2.6rem)",
+    fontFamily: "'Cinzel', serif",
+    fontSize: "2rem",
+    marginTop: "20px",
+    marginBottom: "20px",
+    background: "linear-gradient(135deg,#F0D886,#E1C46D)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  },
+
+  roadmapWrapper: {
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    padding: "25px 20px",
+    borderRadius: "20px",
     marginBottom: "40px",
-    background: "linear-gradient(135deg,#fff,#a5b4fc)",
+  },
+
+  roadmapTitle: {
+    textAlign: "center",
+    fontSize: "1.3rem",
+    marginBottom: "18px",
+    background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     fontWeight: 700,
   },
 
-  milestones: {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: "18px",
-    padding: "28px 20px",
-    marginBottom: "40px",
-  },
-  milestonesTitle: {
-    fontSize: "1.4rem",
-    fontWeight: 700,
-    marginBottom: "20px",
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    textAlign: "center",
-  },
   milestoneCard: {
     background: "rgba(255,255,255,0.03)",
     border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: "15px",
-    padding: "18px 14px",
     marginBottom: "16px",
+    padding: "16px 14px",
+    borderRadius: "14px",
+    backdropFilter: "blur(4px)",
+    animation: "subtleGlow 6s ease-in-out infinite",
   },
+
   milestoneYear: {
-    fontSize: "1.2rem",
-    fontWeight: 700,
-    background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
+    textAlign: "center",
+    fontSize: "1.3rem",
+    background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    marginBottom: "6px",
-    textAlign: "center",
+    fontWeight: 700,
+    marginBottom: "4px",
   },
-  milestoneTitle: {
+
+  milestoneSubtitle: {
+    textAlign: "center",
     fontSize: "1rem",
-    fontWeight: 600,
+    marginBottom: "6px",
     color: "rgba(255,255,255,0.9)",
-    marginBottom: "8px",
-    textAlign: "center",
+    fontWeight: 600,
   },
-  achievementsList: { listStyle: "none", padding: 0, margin: 0 },
-  achievementItem: {
-    fontSize: "0.9rem",
-    color: "rgba(255,255,255,0.8)",
-    padding: "4px 0",
+
+  milestoneList: {
+    padding: 0,
+    margin: 0,
+    listStyle: "none",
     textAlign: "center",
   },
 
-  storyText: {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: "18px",
-    padding: "35px 28px",
-    textAlign: "justify",
+  milestoneItem: {
+    padding: "4px 0",
+    color: "rgba(255,255,255,0.75)",
+    fontSize: "0.9rem",
   },
-  storyParagraph: {
-    fontSize: "1rem",
-    color: "rgba(255,255,255,0.9)",
+
+  storyBox: {
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    padding: "26px",
+    borderRadius: "16px",
+    backdropFilter: "blur(6px)",
+  },
+
+  storyText: {
+    marginBottom: "18px",
+    color: "rgba(255,255,255,0.88)",
     lineHeight: 1.7,
-    marginBottom: "22px",
+    fontSize: "1rem",
+  },
+
+  whitepaperLink: {
+    background:
+      "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontWeight: 700,
+    cursor: "pointer",
+    textDecoration: "none",
+    transition: "0.2s",
   },
 
   syncIndicator: {
     position: "fixed",
     bottom: "20px",
     right: "20px",
-    background: "rgba(255,255,255,0.1)",
-    border: "1px solid rgba(255,255,255,0.2)",
-    borderRadius: "50px",
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.15)",
     padding: "10px 16px",
+    borderRadius: "50px",
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    animation: "pulse 2s ease-in-out infinite",
+    backdropFilter: "blur(4px)",
+    zIndex: 10,
   },
-  pulseCircle: {
+
+  pulseDot: {
     width: "6px",
     height: "6px",
-    background: "#10b981",
+    background: "#F0D886",
     borderRadius: "50%",
-    animation: "pulse 1.5s ease-in-out infinite",
+    animation: "pulse 1.4s ease-in-out infinite",
   },
-  syncText: { fontSize: "12px", color: "rgba(255,255,255,0.9)" },
+
+  syncLabel: {
+    fontSize: "12px",
+    color: "rgba(255,255,255,0.9)",
+  },
 };
