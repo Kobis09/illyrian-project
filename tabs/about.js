@@ -1,4 +1,5 @@
-// tabs/about.js — Illyrian Gold Modern Version (no glow, modern font)
+// tabs/about.js — Illyrian Gold Premium Rebuild (A2Z)
+// Matching the official coin's colors and imperial theme
 
 import { useEffect, useState } from "react";
 
@@ -11,6 +12,11 @@ export default function About() {
   }, []);
 
   const GOLD = "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)";
+  const GOLD_TEXT = {
+    background: GOLD,
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  };
 
   const milestones = [
     {
@@ -47,7 +53,7 @@ export default function About() {
 
   return (
     <div style={styles.page}>
-      {/* Floating Background */}
+      {/* Floating gold particles background */}
       <div style={styles.particlesLayer}></div>
 
       {/* HERO SECTION */}
@@ -57,8 +63,9 @@ export default function About() {
         </h1>
 
         <p style={styles.heroSubtitle}>
-          Building the <span style={styles.highlight}>future of finance</span>{" "}
-          through innovation, community strength, and{" "}
+          Building the{" "}
+          <span style={styles.highlight}>future of finance</span> through
+          innovation, community strength, and{" "}
           <span style={styles.highlight}>transformative vision</span>.
         </p>
 
@@ -81,7 +88,7 @@ export default function About() {
               key={idx}
               style={{
                 ...styles.milestoneCard,
-                animation: `riseUp 0.5s ease ${idx * 0.12}s forwards`,
+                animation: `riseUp 0.6s ease ${idx * 0.15}s forwards`,
                 opacity: 0,
               }}
             >
@@ -149,7 +156,7 @@ export default function About() {
       {fade && (
         <div style={styles.syncIndicator}>
           <div style={styles.pulseDot}></div>
-          <span style={styles.syncLabel}>Connected to Illyrian Vision</span>
+          <span style={styles.syncLabel}>✨ Connected to Illyrian Vision</span>
         </div>
       )}
 
@@ -157,13 +164,19 @@ export default function About() {
       <style>
         {`
         @keyframes riseUp {
-          0% { transform: translateY(18px); opacity: 0; }
+          0% { transform: translateY(20px); opacity: 0; }
           100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes subtleGlow {
+          0% { box-shadow: 0 0 15px rgba(240,216,134,0.15); }
+          50% { box-shadow: 0 0 35px rgba(240,216,134,0.32); }
+          100% { box-shadow: 0 0 15px rgba(240,216,134,0.15); }
         }
 
         @keyframes float {
           0% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+          50% { transform: translateY(-6px); }
           100% { transform: translateY(0); }
         }
       `}
@@ -180,7 +193,6 @@ const styles = {
     background: "#0F1114",
     color: "white",
     overflowX: "hidden",
-    fontFamily: "'Inter','SF Pro Display',sans-serif",
   },
 
   particlesLayer: {
@@ -190,8 +202,8 @@ const styles = {
     width: "100%",
     height: "100%",
     background:
-      "radial-gradient(circle at 50% 20%, rgba(255,215,140,0.045), transparent 70%)",
-    animation: "float 10s ease-in-out infinite",
+      "radial-gradient(circle at 50% 20%, rgba(255,215,140,0.065), transparent 70%)",
+    animation: "float 9s ease-in-out infinite",
     zIndex: 0,
   },
 
@@ -203,31 +215,32 @@ const styles = {
   },
 
   title: {
-    fontSize: "clamp(2.2rem, 6vw, 3.3rem)",
-    fontWeight: 800,
-    marginBottom: "12px",
-    letterSpacing: "-0.5px",
+    fontFamily: "'Cinzel', serif",
+    fontSize: "clamp(2.4rem, 7vw, 4rem)",
+    fontWeight: 700,
+    marginBottom: "14px",
   },
 
   titleGradient: {
     background: "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+    textShadow: "0 0 25px rgba(240,216,134,0.25)",
   },
 
   heroSubtitle: {
-    color: "rgba(255,255,255,0.85)",
-    fontSize: "1.05rem",
+    color: "rgba(255,255,255,0.82)",
+    fontSize: "1.1rem",
     maxWidth: "600px",
     margin: "0 auto 22px",
-    lineHeight: 1.65,
+    lineHeight: 1.7,
   },
 
   highlight: {
     background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   badges: {
@@ -240,8 +253,8 @@ const styles = {
   badge: {
     padding: "8px 14px",
     borderRadius: "50px",
-    border: "1px solid rgba(240,216,134,0.32)",
-    background: "rgba(240,216,134,0.06)",
+    border: "1px solid rgba(240,216,134,0.35)",
+    background: "rgba(240,216,134,0.08)",
     color: "#E1C46D",
     fontWeight: 600,
     fontSize: "0.9rem",
@@ -255,18 +268,18 @@ const styles = {
 
   sectionTitle: {
     textAlign: "center",
-    fontSize: "1.9rem",
+    fontFamily: "'Cinzel', serif",
+    fontSize: "2rem",
     marginTop: "20px",
     marginBottom: "20px",
-    fontWeight: 700,
     background: "linear-gradient(135deg,#F0D886,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
   },
 
   roadmapWrapper: {
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.07)",
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
     padding: "25px 20px",
     borderRadius: "20px",
     marginBottom: "40px",
@@ -274,8 +287,8 @@ const styles = {
 
   roadmapTitle: {
     textAlign: "center",
-    fontSize: "1.25rem",
-    marginBottom: "16px",
+    fontSize: "1.3rem",
+    marginBottom: "18px",
     background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -284,16 +297,17 @@ const styles = {
 
   milestoneCard: {
     background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,255,255,0.07)",
+    border: "1px solid rgba(255,255,255,0.08)",
     marginBottom: "16px",
     padding: "16px 14px",
     borderRadius: "14px",
     backdropFilter: "blur(4px)",
+    animation: "subtleGlow 6s ease-in-out infinite",
   },
 
   milestoneYear: {
     textAlign: "center",
-    fontSize: "1.2rem",
+    fontSize: "1.3rem",
     background: "linear-gradient(135deg,#C9A34A,#E1C46D)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -305,7 +319,7 @@ const styles = {
     textAlign: "center",
     fontSize: "1rem",
     marginBottom: "6px",
-    color: "rgba(255,255,255,0.92)",
+    color: "rgba(255,255,255,0.9)",
     fontWeight: 600,
   },
 
@@ -323,8 +337,8 @@ const styles = {
   },
 
   storyBox: {
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.07)",
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
     padding: "26px",
     borderRadius: "16px",
     backdropFilter: "blur(6px)",
@@ -332,13 +346,14 @@ const styles = {
 
   storyText: {
     marginBottom: "18px",
-    color: "rgba(255,255,255,0.9)",
+    color: "rgba(255,255,255,0.88)",
     lineHeight: 1.7,
     fontSize: "1rem",
   },
 
   whitepaperLink: {
-    background: "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)",
+    background:
+      "linear-gradient(135deg,#C9A34A,#E1C46D,#F0D886)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     fontWeight: 700,
