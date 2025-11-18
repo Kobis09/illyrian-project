@@ -44,7 +44,7 @@ export default function Instructions() {
       shortTitle: "Wallet Setup",
       description: "Copy your token address and the USDT address used for payment, then paste them in the Invest & Mine tab.",
       details: [
-        "Copy your 34-character ILLYRIAN wallet address",
+        "Copy your 42-character ILLYRIAN wallet address",
         "Copy your USDT address that you gonna pay with",
         "Supported USDT networks: TRC20, ERC20, Solana, Polygon, BEP20",
         "Paste both addresses in the designated fields on our site and save them",
