@@ -1,129 +1,82 @@
-// pages/Home.js — Illyrian Token Homepage (SunSwap Hybrid Edition)
-// PC: coin on RIGHT, interactive 3D rotation, hologram layers
-// Mobile: coin centered, breathing animation
-// Colors: Dark navy/black + gold + silver highlights
-// Layout: Hero (Left text / Right coin) + Sections
-
+// tabs/tokeninfo.js — NEW HOME PAGE (No Errors, Fully Merged)
 import { useEffect, useRef, useState } from "react";
 
+/* ================================================================
+   MAIN HOME COMPONENT
+================================================================ */
 export default function Home() {
   const coinRef = useRef(null);
-  const isMobileRef = useRef(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  /* -------------------------------------------------------------
-     DEVICE RESPONSIVE DETECTION
-  ------------------------------------------------------------- */
+  /* Detect Mobile */
   useEffect(() => {
-    const detect = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
-      isMobileRef.current = mobile;
-    };
+    const detect = () => setIsMobile(window.innerWidth <= 768);
     detect();
     window.addEventListener("resize", detect);
     return () => window.removeEventListener("resize", detect);
   }, []);
 
-  /* -------------------------------------------------------------
-     PC — 3D Mouse Tracking (Coin follows mouse)
-  ------------------------------------------------------------- */
+  /* PC — Mouse Interaction */
   useEffect(() => {
-    if (!coinRef.current) return;
-
-    const handleMove = (e) => {
-      if (isMobileRef.current) return; // disable on mobile
-
-      const { innerWidth, innerHeight } = window;
-      const x = ((e.clientX / innerWidth) - 0.5) * 35;
-      const y = ((e.clientY / innerHeight) - 0.5) * -35;
-
-      coinRef.current.style.transform = `
-        rotateY(${x}deg)
-        rotateX(${y}deg)
-        translateZ(20px)
-      `;
+    if (isMobile) return;
+    const move = (e) => {
+      if (!coinRef.current) return;
+      const x = ((e.clientX / window.innerWidth) - 0.5) * 20;
+      const y = ((e.clientY / window.innerHeight) - 0.5) * -20;
+      coinRef.current.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
     };
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, [isMobile]);
 
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
-
-  /* -------------------------------------------------------------
-     MOBILE — Breathing Floating Coin
-  ------------------------------------------------------------- */
+  /* MOBILE — Float Animation */
   useEffect(() => {
-    if (!isMobile) return;
-    if (!coinRef.current) return;
-
+    if (!isMobile || !coinRef.current) return;
     let frame = 0;
     let raf;
-
-    const breathe = () => {
-      const offset = Math.sin(frame / 60) * 8;
+    const float = () => {
+      const offset = Math.sin(frame / 40) * 5;
       coinRef.current.style.transform = `translateY(${offset}px)`;
       frame++;
-      raf = requestAnimationFrame(breathe);
+      raf = requestAnimationFrame(float);
     };
-
-    breathe();
+    float();
     return () => cancelAnimationFrame(raf);
   }, [isMobile]);
 
-  /* -------------------------------------------------------------
-     RENDER START
-  ------------------------------------------------------------- */
   return (
     <div style={S.page}>
-
-      {/* BACKGROUND EFFECTS */}
-      <div style={S.gridOverlay} />
-      <div style={S.particles} />
-
-      {/* ======================================================
-          HERO SECTION — TEXT LEFT / COIN RIGHT (SunSwap style)
-      ====================================================== */}
+      {/* HERO */}
       <section style={S.hero}>
         <div style={S.heroInner}>
 
-          {/* LEFT SIDE — TEXT */}
-          <div style={S.leftCol}>
-            <h1 style={S.title}>
-              <span style={S.white}>Welcome to </span>
-              <span style={S.gold}>Illyrian Token</span>
+          {/* LEFT TEXT */}
+          <div style={S.left}>
+            <h1 style={S.titleMain}>
+              Illyrian Token
             </h1>
 
             <p style={S.subtitle}>
-              The next-generation asset powering the{" "}
-              <span style={S.goldHighlight}>Illyrian decentralized ecosystem</span>.  
-              Built for scalability, transparency, and powerful utility.
+              Premium, secure, next-generation digital asset designed for global adoption,
+              long-term scalability, and strong investor value.
             </p>
 
-            <div style={S.buttons}>
-              <button style={S.primaryBtn}>Invest Now</button>
-              <button style={S.secondaryBtn}>Read Whitepaper</button>
+            <div style={S.btnRow}>
+              <a href="/dashboard" style={S.primaryBtn}>Enter Dashboard</a>
+              <a href="https://illyrian-token-foundation.gitbook.io" target="_blank" style={S.secondaryBtn}>Whitepaper</a>
             </div>
           </div>
 
-          {/* RIGHT SIDE — HOLOGRAPHIC COIN */}
-          <div style={S.rightCol}>
-            <div style={S.coinWrapper}>
-              {/* Subtle gold/silver hologram ring */}
-              <div style={S.holoRing} />
-
-              {/* Radial pulse under coin */}
-              <div style={S.radialPulse} />
-
-              {/* Vertical hologram scan */}
-              <div style={S.verticalScan} />
-
-              {/* Coin Image */}
+          {/* RIGHT COIN */}
+          <div style={S.right}>
+            <div style={S.coinWrap}>
+              <div style={S.coinGlow}></div>
+              <div style={S.coinScan}></div>
               <img
                 ref={coinRef}
                 src="/images/illyriantokencircle.png"
                 style={S.coin}
                 draggable={false}
-                alt="Illyrian Token Coin"
               />
             </div>
           </div>
@@ -131,215 +84,169 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION DIVIDER */}
-      <div style={S.sectionDivider} />
+      {/* DIVIDER */}
+      <div style={S.sectionDivider}></div>
 
-      {/* !!! PART 2 CONTINUES BELOW !!! */}
-      {/* Metrics Section */}
-      {/* Features Section */}
-      {/* Roadmap */}
-      {/* Footer */}
-      {/* Keyframes */}
+      {/* Page sections (Part 2 continues) */}
     </div>
   );
 }
 
 /* ================================================================
-   STYLES — NAVY/BLACK + GOLD + SILVER (Clean + Futuristic)
+   STYLES — GOLD + NAVY (FINAL)
 ================================================================ */
 const S = {
   page: {
     minHeight: "100vh",
     width: "100%",
-    background: "linear-gradient(180deg,#05070D,#0A0F1A 60%,#05070D)",
     color: "white",
+    background: "linear-gradient(180deg,#05070D,#0A0F1A 60%,#05070D)",
     overflowX: "hidden",
-    fontFamily: "'Inter','SF Pro Display',sans-serif",
-    position: "relative",
+    fontFamily: "'Inter','SF Pro Display',sans-serif"
   },
 
-  /* Background grid */
-  gridOverlay: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    background:
-      "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-    backgroundSize: "50px 50px",
-    opacity: 0.15,
-    pointerEvents: "none",
-    zIndex: 1,
-  },
-
-  /* Floating Gold Dust */
-  particles: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    background:
-      "radial-gradient(circle at 50% 0%, rgba(240,216,134,0.08), transparent 70%)",
-    zIndex: 0,
-  },
-
-  /* ================= HERO ================= */
   hero: {
-    padding: "80px 20px",
-    position: "relative",
-    zIndex: 3,
+    padding: "50px 20px 80px",
+    display: "flex",
+    justifyContent: "center",
   },
 
   heroInner: {
-    maxWidth: 1400,
-    margin: "0 auto",
     display: "flex",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
+    gap: "40px",
+    maxWidth: "1200px",
+    width: "100%",
     flexWrap: "wrap",
   },
 
-  /* ================= LEFT SIDE ================= */
-  leftCol: {
-    flex: "1 1 480px",
-    paddingRight: 30,
+  /* LEFT */
+  left: {
+    flex: 1,
+    minWidth: "280px",
   },
 
-  title: {
-    fontSize: "clamp(2.2rem, 5vw, 3.6rem)",
+  titleMain: {
+    fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
     fontWeight: 800,
-    marginBottom: 20,
-    lineHeight: 1.1,
-  },
-
-  white: { color: "#ffffff" },
-
-  gold: {
-    background: "linear-gradient(135deg,#E2C875,#F3E6AB,#FFFFFF)",
+    background: "linear-gradient(135deg,#F0D886,#ffffff)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
+    marginBottom: "18px",
   },
 
   subtitle: {
     fontSize: "1.1rem",
     color: "rgba(255,255,255,0.85)",
-    maxWidth: 520,
-    lineHeight: 1.7,
-    marginBottom: 28,
+    lineHeight: 1.6,
+    maxWidth: "520px",
+    marginBottom: "25px",
   },
 
-  goldHighlight: {
-    background: "linear-gradient(135deg,#F0D886,#ffffff)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    fontWeight: 700,
-  },
-
-  buttons: {
+  btnRow: {
     display: "flex",
-    gap: 14,
-    marginTop: 12,
+    gap: "16px",
     flexWrap: "wrap",
   },
 
   primaryBtn: {
-    padding: "12px 26px",
-    background: "linear-gradient(135deg,#F0D886,#E2C875)",
-    border: "none",
-    borderRadius: 12,
+    padding: "12px 22px",
+    background: "linear-gradient(135deg,#F0D886,#8C7846)",
     color: "#000",
-    fontSize: "1rem",
+    borderRadius: "10px",
+    textDecoration: "none",
     fontWeight: 700,
-    cursor: "pointer",
-    boxShadow: "0 0 20px rgba(240,216,134,0.3)",
+    boxShadow: "0 0 15px rgba(240,216,134,0.3)",
   },
 
   secondaryBtn: {
-    padding: "12px 26px",
-    background: "rgba(255,255,255,0.07)",
-    border: "1px solid rgba(255,255,255,0.15)",
-    borderRadius: 12,
-    color: "#fff",
-    fontSize: "1rem",
+    padding: "12px 22px",
+    border: "1px solid rgba(255,255,255,0.3)",
+    color: "white",
+    borderRadius: "10px",
+    textDecoration: "none",
     fontWeight: 600,
-    cursor: "pointer",
-    backdropFilter: "blur(4px)",
   },
 
-  /* ================= RIGHT SIDE (COIN) ================= */
-  rightCol: {
-    flex: "1 1 460px",
+  /* RIGHT */
+  right: {
+    flex: 1,
+    minWidth: "260px",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 30,
   },
 
-  coinWrapper: {
+  coinWrap: {
     position: "relative",
-    width: "min(420px,80vw)",
-    height: "min(420px,80vw)",
-    transformStyle: "preserve-3d",
-  },
-
-  holoRing: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "50%",
-    boxShadow:
-      "0 0 40px rgba(240,216,134,0.2), inset 0 0 25px rgba(255,255,255,0.1)",
-    opacity: 0.25,
-  },
-
-  radialPulse: {
-    position: "absolute",
-    inset: "-20%",
-    borderRadius: "50%",
-    background:
-      "radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%)",
-    animation: "pulse 4s ease-in-out infinite",
-  },
-
-  verticalScan: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "15%",
-    height: "100%",
-    background:
-      "linear-gradient(90deg, transparent, rgba(240,216,134,0.3), transparent)",
-    animation: "scan 3s linear infinite",
+    width: "min(420px,85vw)",
+    height: "min(420px,85vw)",
   },
 
   coin: {
-    position: "absolute",
-    inset: 0,
     width: "100%",
     height: "100%",
     objectFit: "contain",
-    transformStyle: "preserve-3d",
-    transition: "transform 0.1s linear",
+    position: "relative",
+    zIndex: 3,
+  },
+
+  coinGlow: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "120%",
+    height: "120%",
+    transform: "translate(-50%,-50%)",
+    background: "radial-gradient(circle,rgba(240,216,134,0.18),transparent 70%)",
+    filter: "blur(60px)",
+    zIndex: 1,
+  },
+
+  coinScan: {
+    position: "absolute",
+    top: "0",
+    left: "-150%",
+    width: "150%",
+    height: "100%",
+    background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent)",
+    animation: "scan 3.5s infinite",
+    zIndex: 2,
   },
 
   sectionDivider: {
-    height: 80,
+    height: "1px",
+    width: "100%",
+    background: "linear-gradient(90deg,transparent,#2a2a2a,transparent)",
+    margin: "30px 0",
   },
 };
 /* ================================================================
-   CONTINUATION — METRICS SECTION
+   PART 2 — METRICS + FEATURES + ROADMAP + FOOTER
 ================================================================ */
-const S2 = {}; // dummy just to avoid errors if you paste both parts together
 
-export default function ContinueHome() {
-  return null;
+/* METRICS */
+export function HomeSections() {
+  return (
+    <>
+      <Metrics />
+      <Features />
+      <Roadmap />
+      <Footer />
+
+      <style>{`
+        @keyframes scan {
+          0% { transform: translateX(-150%); }
+          100% { transform: translateX(250%); }
+        }
+      `}</style>
+    </>
+  );
 }
 
-// Just ignore this component — Part 2 continues below S object
-
-/* ================================================================
-   METRICS SECTION — SunSwap Inspired Cards
-================================================================ */
-
-const MetricsSection = () => {
-  const metrics = [
+/* ---------------- METRICS ---------------- */
+function Metrics() {
+  const data = [
     { label: "Total Supply", value: "1,000,000 ILY" },
     { label: "Blockchain", value: "BNB Smart Chain" },
     { label: "Target Listing", value: "Binance 2026" },
@@ -347,116 +254,88 @@ const MetricsSection = () => {
   ];
 
   return (
-    <section style={S.metricsSection}>
-      <h2 style={S.sectionTitle}>Illyrian Metrics</h2>
-
-      <div style={S.metricsGrid}>
-        {metrics.map((m, i) => (
-          <div key={i} style={S.metricCard}>
-            <div style={S.metricLabel}>{m.label}</div>
-            <div style={S.metricValue}>{m.value}</div>
+    <section style={S2.section}>
+      <h2 style={S2.sectionTitle}>Illyrian Metrics</h2>
+      <div style={S2.grid}>
+        {data.map((m, i) => (
+          <div key={i} style={S2.card}>
+            <div style={S2.label}>{m.label}</div>
+            <div style={S2.value}>{m.value}</div>
           </div>
         ))}
       </div>
     </section>
   );
-};
+}
 
-/* ================================================================
-   FEATURES SECTION — Clean Gold Cards
-================================================================ */
-const FeaturesSection = () => {
-  const features = [
+/* ---------------- FEATURES ---------------- */
+function Features() {
+  const items = [
     {
       icon: "🔒",
       title: "Security First",
-      desc:
-        "Built using cryptographically secure frameworks and audited smart contracts.",
+      desc: "Audited smart contract and strong operational controls.",
     },
     {
       icon: "🚀",
       title: "High Growth",
-      desc:
-        "Designed for exponential expansion through strategic tokenomics.",
+      desc: "Built with exponential expansion in mind.",
     },
     {
       icon: "🌍",
       title: "Global Vision",
-      desc:
-        "Developed for worldwide accessibility and ecosystem adoption.",
+      desc: "Designed for worldwide accessibility & utility.",
     },
     {
       icon: "⚡",
       title: "Fast & Efficient",
-      desc:
-        "BNB Smart Chain infrastructure ensures near-zero waiting times.",
+      desc: "BNB Smart Chain ensures fast confirmations.",
     },
   ];
 
   return (
-    <section style={S.featuresSection}>
-      <h2 style={S.sectionTitle}>Why Choose Illyrian?</h2>
-
-      <div style={S.featuresGrid}>
-        {features.map((f, i) => (
-          <div key={i} style={S.featureCard}>
-            <div style={S.featureIcon}>{f.icon}</div>
-            <h3 style={S.featureTitle}>{f.title}</h3>
-            <p style={S.featureDesc}>{f.desc}</p>
+    <section style={S2.section}>
+      <h2 style={S2.sectionTitle}>Why Choose Illyrian?</h2>
+      <div style={S2.grid}>
+        {items.map((f, i) => (
+          <div key={i} style={S2.card}>
+            <div style={S2.icon}>{f.icon}</div>
+            <h3 style={S2.cardTitle}>{f.title}</h3>
+            <p style={S2.desc}>{f.desc}</p>
           </div>
         ))}
       </div>
     </section>
   );
-};
+}
 
-/* ================================================================
-   ROADMAP SECTION
-================================================================ */
-const RoadmapSection = () => {
-  const roadmap = [
+/* ---------------- ROADMAP ---------------- */
+function Roadmap() {
+  const steps = [
     {
       year: "2024",
-      steps: [
-        "Project Inception",
-        "Smart Contract Development",
-        "Tokenomics Design",
-        "Community Formation",
-      ],
+      items: ["Project Inception", "Smart Contract", "Tokenomics", "Community"],
     },
     {
       year: "2025",
-      steps: [
-        "Platform Scaling",
-        "Marketing Expansion",
-        "Global Partnerships",
-        "Ecosystem Launch",
-      ],
+      items: ["Scaling", "Marketing", "Partnerships", "Ecosystem Launch"],
     },
     {
       year: "2026",
-      steps: [
-        "Binance Listing Preparation",
-        "Token Expansion",
-        "Worldwide Scaling",
-        "Major Exchange Integrations",
-      ],
+      items: ["Binance Listing Prep", "Expansion", "Global Push"],
     },
   ];
 
   return (
-    <section style={S.roadmapSection}>
-      <h2 style={S.sectionTitle}>Roadmap</h2>
-
-      <div style={S.roadmapGrid}>
-        {roadmap.map((r, i) => (
-          <div key={i} style={S.roadmapCard}>
-            <div style={S.roadmapYear}>{r.year}</div>
-            <ul style={S.roadmapList}>
-              {r.steps.map((step, idx) => (
-                <li key={idx} style={S.roadmapItem}>
-                  {step}
-                </li>
+    <section style={S2.section}>
+      <h2 style={S2.sectionTitle}>Roadmap</h2>
+      <div style={S2.grid}>
+        {steps.map((r, i) => (
+          <div key={i} style={S2.card}>
+            <div style={S2.year}>{r.year}</div>
+            <ul style={S2.list}>
+              {r.items.map((st, idx) => (
+                <li key={idx} style={S2.listItem}>{st}</li>
               ))}
             </ul>
           </div>
@@ -464,205 +343,101 @@ const RoadmapSection = () => {
       </div>
     </section>
   );
-};
+}
 
-/* ================================================================
-   FOOTER — Clean Minimal Footer
-================================================================ */
-const Footer = () => {
+/* ---------------- FOOTER ---------------- */
+function Footer() {
   return (
-    <footer style={S.footer}>
-      <div style={S.footerText}>© {new Date().getFullYear()} Illyrian Token</div>
-      <div style={S.footerLinks}>
-        <a href="#" style={S.footerLink}>Whitepaper</a>
-        <a href="#" style={S.footerLink}>Docs</a>
-        <a href="#" style={S.footerLink}>Support</a>
-      </div>
+    <footer style={S2.footer}>
+      <p style={S2.footerText}>© {new Date().getFullYear()} Illyrian Token</p>
     </footer>
-  );
-};
-
-/* ================================================================
-   MERGE SECTIONS INTO HOME — EXPORT FINAL HOME PAGE
-================================================================ */
-export function HomeSections() {
-  return (
-    <>
-      <MetricsSection />
-      <FeaturesSection />
-      <RoadmapSection />
-      <Footer />
-
-      {/* KEYFRAME ANIMATIONS */}
-      <style>{`
-      @keyframes scan {
-        0% { transform: translateX(-150%); }
-        100% { transform: translateX(250%); }
-      }
-
-      @keyframes pulse {
-        0% { opacity: 0.15; transform: scale(1); }
-        50% { opacity: 0.30; transform: scale(1.12); }
-        100% { opacity: 0.15; transform: scale(1); }
-      }
-      `}</style>
-    </>
   );
 }
 
 /* ================================================================
-   EXTENDED STYLES FOR PART 2 — CARDS / ROADMAP / FOOTER
+   STYLES FOR PART 2 (NO DUPLICATES)
 ================================================================ */
-const S = {
-  ...S, // merge with Part 1
-
-  metricsSection: {
+const S2 = {
+  section: {
     padding: "40px 20px",
     textAlign: "center",
   },
 
-  metricsGrid: {
+  sectionTitle: {
+    fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
+    fontWeight: 800,
+    marginBottom: "25px",
+    background: "linear-gradient(135deg,#F0D886,#ffffff)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  },
+
+  grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: 20,
-    maxWidth: 1200,
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))",
+    gap: "20px",
+    maxWidth: "1100px",
     margin: "0 auto",
   },
 
-  metricCard: {
+  card: {
     background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.1)",
     padding: "22px",
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: "14px",
     backdropFilter: "blur(6px)",
   },
 
-  metricLabel: {
-    fontSize: ".9rem",
-    color: "rgba(255,255,255,0.6)",
-    marginBottom: 6,
+  label: {
+    color: "rgba(255,255,255,0.65)",
+    marginBottom: "6px",
   },
 
-  metricValue: {
+  value: {
+    background: "linear-gradient(135deg,#F0D886,#ffffff)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontWeight: 800,
     fontSize: "1.2rem",
-    fontWeight: 700,
+  },
+
+  icon: { fontSize: "2.2rem", marginBottom: "12px" },
+
+  cardTitle: {
+    fontSize: "1.2rem",
+    marginBottom: "8px",
     background: "linear-gradient(135deg,#F0D886,#ffffff)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
   },
 
-  /* FEATURES */
-  featuresSection: {
-    padding: "50px 20px",
-    textAlign: "center",
-  },
-
-  featuresGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: 20,
-    maxWidth: 1200,
-    margin: "0 auto",
-  },
-
-  featureCard: {
-    background: "rgba(255,255,255,0.05)",
-    padding: "24px",
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.1)",
-    backdropFilter: "blur(8px)",
-    transition: "0.25s ease",
-  },
-
-  featureCardHover: {
-    transform: "scale(1.05)",
-  },
-
-  featureIcon: {
-    fontSize: "2rem",
-    marginBottom: 12,
-  },
-
-  featureTitle: {
-    fontSize: "1.2rem",
-    marginBottom: 8,
-    background: "linear-gradient(135deg,#F0D886,#ffffff)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    fontWeight: 700,
-  },
-
-  featureDesc: {
-    fontSize: ".95rem",
+  desc: {
     color: "rgba(255,255,255,0.85)",
-    lineHeight: 1.5,
   },
 
-  /* ROADMAP */
-  roadmapSection: {
-    padding: "60px 20px",
-    textAlign: "center",
-  },
-
-  roadmapGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: 22,
-    maxWidth: 1200,
-    margin: "0 auto",
-  },
-
-  roadmapCard: {
-    background: "rgba(255,255,255,0.05)",
-    borderRadius: 16,
-    border: "1px solid rgba(255,255,255,0.1)",
-    padding: "20px 18px",
-    backdropFilter: "blur(6px)",
-  },
-
-  roadmapYear: {
-    fontSize: "1.4rem",
+  year: {
+    fontSize: "1.6rem",
     fontWeight: 800,
     background: "linear-gradient(135deg,#F0D886,#ffffff)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    marginBottom: 14,
+    marginBottom: "10px",
   },
 
-  roadmapList: {
-    listStyle: "none",
-    padding: 0,
-  },
+  list: { padding: 0, listStyle: "none" },
 
-  roadmapItem: {
+  listItem: {
     color: "rgba(255,255,255,0.85)",
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
-  /* FOOTER */
   footer: {
-    padding: "40px 20px",
-    marginTop: 40,
-    background: "rgba(255,255,255,0.03)",
+    marginTop: "40px",
+    padding: "25px",
     borderTop: "1px solid rgba(255,255,255,0.1)",
-    backdropFilter: "blur(4px)",
-    textAlign: "center",
   },
 
   footerText: {
-    color: "rgba(255,255,255,0.7)",
-    marginBottom: 10,
-  },
-
-  footerLinks: {
-    display: "flex",
-    justifyContent: "center",
-    gap: 20,
-  },
-
-  footerLink: {
-    color: "rgba(255,255,255,0.9)",
-    textDecoration: "none",
-    fontWeight: 600,
+    color: "rgba(255,255,255,0.6)",
   },
 };
