@@ -25,25 +25,21 @@ export default function Instructions() {
 
   const steps = [
     {
-  number: "01",
-  title: "Import the Token on MetaMask",
-  shortTitle: "Import Token",
-  description: "Add ILLYRIAN token to MetaMask to receive all payments and track your investments securely.",
-  details: [
-    "Open MetaMask and tap the '+' icon",
-    "Select the BNB Chain network and paste the Token contract address",
-    {
-      type: "copy",
-      label: "Token Contract",
-      value: "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58",
-    },
-    "Click Import",
-    "Your ILLYRIAN balance will now be visible",
-  ],
-  icon: "📱",
-  color: "#8b5cf6",
-},
+      number: "01",
+      title: "Import the Token on MetaMask",
+      shortTitle: "Import Token",
+      description: "Add ILLYRIAN token to MetaMask to receive all payments and track your investments securely.",
+      details: [
+        "Open MetaMask and tap the '+' icon",
+        "Select the BNB Chain network and paste the Token contract address",
+        "Token Contract: 0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58 ",
 
+        "Click Import",
+        "Your ILLYRIAN balance will now be visible",
+      ],
+      icon: "📱",
+      color: "#8b5cf6",
+    },
     {
       number: "02",
       title: "Provide Your Wallet Addresses",
@@ -213,7 +209,41 @@ export default function Instructions() {
                     >
                       {index + 1}
                     </div>
-                    <span style={styles.detailText}>{detail}</span>
+                    <span
+  style={{
+    ...styles.detailText,
+    cursor:
+      typeof detail === "string" &&
+      detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
+        ? "pointer"
+        : "default",
+    fontFamily:
+      typeof detail === "string" &&
+      detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
+        ? "monospace"
+        : styles.detailText.fontFamily,
+    textDecoration:
+      typeof detail === "string" &&
+      detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
+        ? "underline"
+        : "none",
+  }}
+  title={
+    typeof detail === "string" &&
+    detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
+      ? "Click to copy"
+      : ""
+  }
+  onClick={() => {
+    const addr = "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58";
+    if (typeof detail === "string" && detail.includes(addr)) {
+      navigator.clipboard.writeText(addr);
+    }
+  }}
+>
+  {detail}
+</span>
+
                   </div>
                 ))}
               </div>
