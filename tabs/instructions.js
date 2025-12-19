@@ -30,12 +30,17 @@ export default function Instructions() {
       shortTitle: "Import Token",
       description: "Add ILLYRIAN token to MetaMask to receive all payments and track your investments securely.",
       details: [
-        "Open MetaMask and tap the '+' icon",
-        "Select the BNB Chain network and paste the Token contract address'",
-        "Token Contract: 0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58",
-        "Click Import",
-        "Your ILLYRIAN balance will now be visible",
-      ],
+  "Open MetaMask and tap the '+' icon",
+  "Select the BNB Chain network and paste the Token contract address",
+  {
+    type: "copy",
+    label: "Token Contract",
+    value: "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58",
+  },
+  "Click Import",
+  "Your ILLYRIAN balance will now be visible",
+],
+
       icon: "📱",
       color: "#8b5cf6",
     },
