@@ -19,7 +19,6 @@ import About from "../tabs/about";
 
 // ⭐ NEW TABS ⭐
 import Profile from "../tabs/profile";
-import Settings from "../tabs/settings";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -190,7 +189,6 @@ export default function Dashboard() {
 
             {/* ⭐ NEW CONTENT TABS ⭐ */}
             {selectedTab === "profile" && <Profile user={user} />}
-            {selectedTab === "settings" && <Settings user={user} />}
           </div>
         {/* SYNC */}
         {fade && (
