@@ -26,13 +26,14 @@ export default function Instructions() {
   const steps = [
     {
       number: "01",
-      title: "Import the Token on Trust Wallet",
+      title: "Import the Token on MetaMask",
       shortTitle: "Import Token",
-      description: "Add ILLYRIAN token to your Trust Wallet to receive all payments and track your investments securely.",
+      description: "Add ILLYRIAN token to MetaMask to receive all payments and track your investments securely.",
       details: [
-        "Open Trust Wallet and tap the '+' icon",
-        "Search for 'Illyrian Token' or 'ILLYRIAN'",
-        "Toggle the switch to add to your wallet",
+        "Open MetaMask and tap the '+' icon",
+        "Select the BNB Chain network and paste the Token contract address'",
+        "Token Contract: 0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58",
+        "Click Import",
         "Your ILLYRIAN balance will now be visible",
       ],
       icon: "📱",
