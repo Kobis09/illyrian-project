@@ -47,12 +47,7 @@ export default function TabsNav({ selectedTab, setSelectedTab, onLogout }) {
     <div style={styles.navWrapper}>
       {/* Row ABOVE: Settings + Profile only */}
       <div style={styles.accountRow}>
-        <div
-          style={styles.accountBtn}
-          onClick={() => setSelectedTab("settings")}
-        >
-          ⚙ Settings
-        </div>
+        
 
         <div
           style={styles.accountBtn}
