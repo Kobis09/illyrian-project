@@ -31,9 +31,7 @@ export default function Instructions() {
       description: "Add ILLYRIAN token to MetaMask to receive all payments and track your investments securely.",
       details: [
         "Open MetaMask and tap the '+' icon",
-        "Select the BNB Chain network and paste the Token contract address",
-        "Token Contract: 0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58 ",
-
+        "Select the BNB Chain network and paste the Token contract address'",
         "Click Import",
         "Your ILLYRIAN balance will now be visible",
       ],
@@ -191,6 +189,41 @@ export default function Instructions() {
                 <h2 style={styles.stepTitle}>{steps[activeStep].title}</h2>
                 <p style={styles.stepDescription}>
                   {steps[activeStep].description}
+                  {activeStep === 0 && (
+  <div
+    style={{
+      marginTop: "14px",
+      padding: "12px 14px",
+      borderRadius: "10px",
+      background: "rgba(139,92,246,0.08)",
+      border: "1px solid rgba(139,92,246,0.35)",
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      flexWrap: "wrap",
+      justifyContent: "center",
+      cursor: "pointer",
+    }}
+    title="Click to copy"
+    onClick={() => navigator.clipboard.writeText(TOKEN_CONTRACT)}
+  >
+    <span style={{ fontWeight: 600, opacity: 0.9 }}>Token Contract:</span>
+
+    <span
+      style={{
+        fontFamily: "monospace",
+        fontWeight: 700,
+        color: "#a78bfa",
+        textDecoration: "underline",
+      }}
+    >
+      {TOKEN_CONTRACT}
+    </span>
+
+    <span style={{ fontSize: "12px", opacity: 0.7 }}>📋 Click to copy</span>
+  </div>
+)}
+
                 </p>
               </div>
             </div>
@@ -209,67 +242,7 @@ export default function Instructions() {
                     >
                       {index + 1}
                     </div>
-                    <span
-  style={{
-    ...styles.detailText,
-    cursor:
-      typeof detail === "string" &&
-      detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
-        ? "pointer"
-        : "default",
-    fontFamily:
-      typeof detail === "string" &&
-      detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
-        ? "monospace"
-        : styles.detailText.fontFamily,
-    textDecoration:
-      typeof detail === "string" &&
-      detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
-        ? "underline"
-        : "none",
-  }}
-  title={
-    typeof detail === "string" &&
-    detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58")
-      ? "Click to copy"
-      : ""
-  }
-  onClick={() => {
-    const addr = "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58";
-    if (typeof detail === "string" && detail.includes(addr)) {
-      navigator.clipboard.writeText(addr);
-    }
-  }}
->
-  {detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58") ? (
-  <>
-    <span>Token Contract: </span>
-    <span
-      style={{
-        textDecoration: "underline",
-        fontFamily: "monospace",
-        fontWeight: 600,
-        color: "#a78bfa",
-      }}
-    >
-      0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58
-    </span>
-    <span
-      style={{
-        marginLeft: 8,
-        fontSize: "12px",
-        opacity: 0.7,
-      }}
-    >
-      📋 Click to copy
-    </span>
-  </>
-) : (
-  detail
-)}
-
-</span>
-
+                    <span style={styles.detailText}>{detail}</span>
                   </div>
                 ))}
               </div>
