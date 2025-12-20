@@ -241,7 +241,33 @@ export default function Instructions() {
     }
   }}
 >
-  {detail}
+  {detail.includes("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58") ? (
+  <>
+    <span>Token Contract: </span>
+    <span
+      style={{
+        textDecoration: "underline",
+        fontFamily: "monospace",
+        fontWeight: 600,
+        color: "#a78bfa",
+      }}
+    >
+      0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58
+    </span>
+    <span
+      style={{
+        marginLeft: 8,
+        fontSize: "12px",
+        opacity: 0.7,
+      }}
+    >
+      📋 Click to copy
+    </span>
+  </>
+) : (
+  detail
+)}
+
 </span>
 
                   </div>
