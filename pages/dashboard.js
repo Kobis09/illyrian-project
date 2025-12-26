@@ -38,9 +38,29 @@ export default function Dashboard() {
 
   useEffect(() => setClient(true), []);
 
+  // Add this Head snippet for favicon and description
+  if (client) {
+    return (
+      <>
+        <Head>
+          <title>Illyrian Token Dashboard</title>
+          <meta
+            name="description"
+            content="Manage your Illyrian Token portfolio, track earnings, referrals, and token info all in one secure and user-friendly dashboard."
+          />
+          <link rel="icon" href="/images/illyriantokencircle.png" />
+        </Head>
+
+        <div>
+          <TabsNav />
+          {/* Rest of your dashboard content goes here */}
+        </div>
+      </>
+    );
+  }
+
   // Mobile check
   useEffect(() => {
-    if (!client) return;
     const check = () => setIsMobile(window.innerWidth <= 768);
     check();
     window.addEventListener("resize", check);
@@ -49,8 +69,6 @@ export default function Dashboard() {
 
   // Auth
   useEffect(() => {
-    if (!client) return;
-
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (!u) {
         setUser(null);
@@ -104,6 +122,8 @@ export default function Dashboard() {
         Loading...
       </p>
     );
+}
+
 
   if (!user)
     return (
