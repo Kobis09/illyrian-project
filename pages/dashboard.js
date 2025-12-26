@@ -1,4 +1,3 @@
-// dashboard.js — POLISHED UI VERSION (MOBILE SAFE, NO LOGIC CHANGES)
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { auth, db } from "../firebase";
@@ -29,19 +28,7 @@ export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("tokenInfo");
 
   const [stars, setStars] = useState([]);
-// CONTRACT ADDRESS COPY
-const CONTRACT_ADDRESS = "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58";
-const [copied, setCopied] = useState(false);
-
-const handleCopy = async () => {
-  try {
-    await navigator.clipboard.writeText(CONTRACT_ADDRESS);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  } catch (err) {
-    console.error("Copy failed", err);
-  }
-};
+  const [fade, setFade] = useState(false);
 
   const [isMobile, setIsMobile] = useState(false);
   const [client, setClient] = useState(false);
@@ -106,6 +93,11 @@ const handleCopy = async () => {
   const handleLogout = async () => {
     await signOut(auth);
     router.replace("/");
+  };
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58");
+    alert("Address copied to clipboard!");
   };
 
   // SERVER RENDER
@@ -179,23 +171,11 @@ const handleCopy = async () => {
                 <span style={styles.highlight}>Illyrian Token</span> dashboard
               </p>
 
-              <<div style={styles.headerActions}>
-  <button style={styles.logoutBtn} onClick={handleLogout}>
-    🚪 Logout
-  </button>
-
-  <div style={styles.contractBox}>
-    <span style={styles.contractText}>
-      {CONTRACT_ADDRESS.slice(0, 6)}...
-      {CONTRACT_ADDRESS.slice(-4)}
-    </span>
-
-    <button style={styles.copyBtn} onClick={handleCopy}>
-      {copied ? "✔ Copied" : "📋 Copy"}
-    </button>
-  </div>
-</div>
-
+              <div style={styles.headerActions}>
+                <button style={styles.logoutBtn} onClick={handleLogout}>
+                  🚪 Logout
+                </button>
+              </div>
             </div>
           </section>
 
@@ -213,7 +193,27 @@ const handleCopy = async () => {
             {selectedTab === "about" && <About />}
 
             {/* ⭐ NEW CONTENT TABS ⭐ */}
-            {selectedTab === "profile" && <Profile user={user} />}
+            {selectedTab === "profile" && (
+              <>
+                <Profile user={user} />
+                <div style={{ marginTop: "16px", textAlign: "center" }}>
+                  <button
+                    style={{
+                      padding: "10px 16px",
+                      borderRadius: "10px",
+                      background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
+                      color: "#fff",
+                      fontWeight: 600,
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                    onClick={handleCopyAddress}
+                  >
+                    Copy Address
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         {/* SYNC */}
         {fade && (
@@ -455,33 +455,4 @@ syncText: {
   color: "rgba(255,255,255,0.9)",
   fontWeight: 500,
 },
-contractBox: {
-  marginTop: "12px",
-  display: "flex",
-  alignItems: "center",
-  gap: "10px",
-  padding: "10px 14px",
-  borderRadius: "12px",
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  backdropFilter: "blur(12px)",
-},
-
-contractText: {
-  fontSize: "13px",
-  color: "rgba(255,255,255,0.9)",
-  fontFamily: "monospace",
-},
-
-copyBtn: {
-  padding: "6px 10px",
-  borderRadius: "8px",
-  background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
-  color: "#fff",
-  fontSize: "12px",
-  fontWeight: 600,
-  border: "none",
-  cursor: "pointer",
-},
-
 };
