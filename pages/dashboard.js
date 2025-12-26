@@ -32,6 +32,8 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const [client, setClient] = useState(false);
 
+  const [copied, setCopied] = useState(false); // Toast state
+
   useEffect(() => { setClient(true); }, []);
 
   // MOBILE CHECK
@@ -186,13 +188,18 @@ export default function Dashboard() {
             {selectedTab === "contact" && <Contact />}
             {selectedTab === "about" && <About />}
 
-            {/* ⭐ NEW CONTENT TABS ⭐ */}
+            {/* ⭐ PROFILE TAB WITH COPY BUTTON & TOAST ⭐ */}
             {selectedTab === "profile" && (
-              <div style={{ padding: "20px", textAlign: "center" }}>
+              <div style={{ position: "relative", minHeight: "200px", paddingBottom: "60px" }}>
                 <Profile user={user} />
+
+                {/* Copy Button */}
                 <button
                   style={{
-                    marginTop: "20px",
+                    position: "absolute",
+                    bottom: "20px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
                     padding: "12px 20px",
                     borderRadius: "12px",
                     background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
@@ -200,16 +207,41 @@ export default function Dashboard() {
                     fontWeight: 600,
                     border: "none",
                     cursor: "pointer",
+                    zIndex: 10,
                   }}
                   onClick={() => {
                     navigator.clipboard.writeText(
                       "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58"
                     );
-                    alert("Address copied to clipboard!");
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
                   }}
                 >
                   Copy Address
                 </button>
+
+                {/* Toast */}
+                {copied && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "70px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "rgba(0,0,0,0.8)",
+                      color: "#fff",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      zIndex: 11,
+                      opacity: 1,
+                      transition: "opacity 0.3s",
+                    }}
+                  >
+                    Address copied!
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -422,6 +454,7 @@ contentBox: {
   boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
   backdropFilter: "blur(15px)",
   overflow: "hidden",
+  position: "relative",
 },
 
 /* SYNC */
