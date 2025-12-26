@@ -43,14 +43,14 @@
 
   // Offers list (final live durations)
 const offers = [
-  { id: 1, range: "50$", tokens: 200, durationHours: 24, image: "/images/131.png", displayTime: "24h" },
-  { id: 2, range: "100$", tokens: 400, durationHours: 24, image: "/images/130.png", displayTime: "24h" },
-  { id: 3, range: "200$", tokens: 800, durationHours: 36, image: "/images/129.png", displayTime: "36h" },
-  { id: 4, range: "400$", tokens: 1600, durationHours: 36, image: "/images/128.png", displayTime: "36h" },
-  { id: 5, range: "800$", tokens: 3200, durationHours: 48, image: "/images/127.png", displayTime: "48h" },
-  { id: 6, range: "1000$", tokens: 4000, durationHours: 48, image: "/images/124.png", displayTime: "48h" },
-  { id: 7, range: "2000$", tokens: 8000, durationHours: 60, image: "/images/125.png", displayTime: "60h" },
-  { id: 8, range: "5000$", tokens: 25000, durationHours: 60, image: "/images/123.png", displayTime: "60h" },
+  { id: 1, range: "20$", tokens: 200, durationHours: 24, image: "/images/131.png", displayTime: "24h" },
+  { id: 2, range: "50$", tokens: 400, durationHours: 24, image: "/images/130.png", displayTime: "24h" },
+  { id: 3, range: "100$", tokens: 800, durationHours: 36, image: "/images/129.png", displayTime: "36h" },
+  { id: 4, range: "200$", tokens: 1600, durationHours: 36, image: "/images/128.png", displayTime: "36h" },
+  { id: 5, range: "400$", tokens: 3200, durationHours: 48, image: "/images/127.png", displayTime: "48h" },
+  { id: 6, range: "800$", tokens: 4000, durationHours: 48, image: "/images/124.png", displayTime: "48h" },
+  { id: 7, range: "1000$", tokens: 8000, durationHours: 60, image: "/images/125.png", displayTime: "60h" },
+  { id: 8, range: "1200$", tokens: 25000, durationHours: 60, image: "/images/123.png", displayTime: "60h" },
 ];
 
 
