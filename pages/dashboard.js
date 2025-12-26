@@ -61,6 +61,7 @@ export default function Dashboard() {
 
   // Mobile check
   useEffect(() => {
+    if (!client) return;
     const check = () => setIsMobile(window.innerWidth <= 768);
     check();
     window.addEventListener("resize", check);
@@ -69,6 +70,8 @@ export default function Dashboard() {
 
   // Auth
   useEffect(() => {
+    if (!client) return;
+
     const unsub = auth.onAuthStateChanged(async (u) => {
       if (!u) {
         setUser(null);
@@ -116,15 +119,15 @@ export default function Dashboard() {
     router.replace("/");
   };
 
+  // Server render
   if (!client)
     return (
       <p style={{ color: "#9fb4cc", textAlign: "center", marginTop: 60 }}>
         Loading...
       </p>
     );
-}
 
-
+  // Wait for auth
   if (!user)
     return (
       <div style={styles.loadingScreen}>
@@ -186,8 +189,8 @@ export default function Dashboard() {
                 Explore your <span style={styles.highlight}>Illyrian Token</span> dashboard
               </p>
 
-              {/* VERTICAL BUTTON STACK */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginTop: "16px" }}>
+              {/* HEADER ACTIONS: LOGOUT + COPY BUTTON */}
+              <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginTop: "16px" }}>
                 <button style={styles.logoutBtn} onClick={handleLogout}>
                   🚪 Logout
                 </button>
@@ -195,15 +198,13 @@ export default function Dashboard() {
                 <button
                   style={styles.copyBtn}
                   onClick={() => {
-                    navigator.clipboard.writeText(address);
+                    navigator.clipboard.writeText("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58");
                     setCopied(true);
                     setTimeout(() => setCopied(false), 1500);
                   }}
                 >
                   📋 Copy Address
                 </button>
-
-                <div style={styles.addressText}>{address}</div>
               </div>
             </div>
           </section>
@@ -288,7 +289,6 @@ const styles = {
   headerActions:{display:"flex",justifyContent:"center"},
   logoutBtn:{padding:"12px 20px",borderRadius:"12px",background:"linear-gradient(135deg,#8b5cf6,#3b82f6)",color:"#fff",fontWeight:600,border:"none",cursor:"pointer",boxShadow:"0 8px 20px rgba(139,92,246,0.28)"},
   copyBtn:{padding:"12px 20px",borderRadius:"12px",background:"linear-gradient(135deg,#06b6d4,#3b82f6)",color:"#fff",fontWeight:600,border:"none",cursor:"pointer",boxShadow:"0 8px 20px rgba(59,130,246,0.28)"},
-  addressText:{color:"#fff",fontSize:"14px",fontWeight:500,wordBreak:"break-all",textAlign:"center"},
   contentBox:{background:"rgba(10,14,22,0.94)",borderRadius:"20px",border:"1px solid rgba(255,255,255,0.08)",boxShadow:"0 18px 40px rgba(0,0,0,0.45)",backdropFilter:"blur(15px)",overflow:"hidden",position:"relative"},
   syncIndicator:{position:"fixed",bottom:"25px",right:"20px",background:"rgba(255,255,255,0.08)",padding:"10px 14px",borderRadius:"18px",border:"1px solid rgba(255,255,255,0.15)",display:"flex",alignItems:"center",gap:"8px",backdropFilter:"blur(14px)",animation:"pulse 2s infinite",zIndex:999},
   pulseCircle:{width:"6px",height:"6px",borderRadius:"50%",background:"#10b981"},
