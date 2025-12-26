@@ -22,13 +22,26 @@ import Profile from "../tabs/profile";
 
 export default function Dashboard() {
   const router = useRouter();
+  
 
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [selectedTab, setSelectedTab] = useState("tokenInfo");
 
   const [stars, setStars] = useState([]);
-  const [fade, setFade] = useState(false);
+// CONTRACT ADDRESS COPY
+const CONTRACT_ADDRESS = "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58";
+const [copied, setCopied] = useState(false);
+
+const handleCopy = async () => {
+  try {
+    await navigator.clipboard.writeText(CONTRACT_ADDRESS);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  } catch (err) {
+    console.error("Copy failed", err);
+  }
+};
 
   const [isMobile, setIsMobile] = useState(false);
   const [client, setClient] = useState(false);
@@ -166,11 +179,23 @@ export default function Dashboard() {
                 <span style={styles.highlight}>Illyrian Token</span> dashboard
               </p>
 
-              <div style={styles.headerActions}>
-                <button style={styles.logoutBtn} onClick={handleLogout}>
-                  🚪 Logout
-                </button>
-              </div>
+              <<div style={styles.headerActions}>
+  <button style={styles.logoutBtn} onClick={handleLogout}>
+    🚪 Logout
+  </button>
+
+  <div style={styles.contractBox}>
+    <span style={styles.contractText}>
+      {CONTRACT_ADDRESS.slice(0, 6)}...
+      {CONTRACT_ADDRESS.slice(-4)}
+    </span>
+
+    <button style={styles.copyBtn} onClick={handleCopy}>
+      {copied ? "✔ Copied" : "📋 Copy"}
+    </button>
+  </div>
+</div>
+
             </div>
           </section>
 
@@ -430,4 +455,33 @@ syncText: {
   color: "rgba(255,255,255,0.9)",
   fontWeight: 500,
 },
+contractBox: {
+  marginTop: "12px",
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  padding: "10px 14px",
+  borderRadius: "12px",
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  backdropFilter: "blur(12px)",
+},
+
+contractText: {
+  fontSize: "13px",
+  color: "rgba(255,255,255,0.9)",
+  fontFamily: "monospace",
+},
+
+copyBtn: {
+  padding: "6px 10px",
+  borderRadius: "8px",
+  background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
+  color: "#fff",
+  fontSize: "12px",
+  fontWeight: 600,
+  border: "none",
+  cursor: "pointer",
+},
+
 };
