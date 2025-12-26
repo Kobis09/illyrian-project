@@ -21,7 +21,6 @@ import Profile from "../tabs/profile";
 
 export default function Dashboard() {
   const router = useRouter();
-  
 
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
@@ -93,11 +92,6 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await signOut(auth);
     router.replace("/");
-  };
-
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText("0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58");
-    alert("Address copied to clipboard!");
   };
 
   // SERVER RENDER
@@ -194,25 +188,29 @@ export default function Dashboard() {
 
             {/* ⭐ NEW CONTENT TABS ⭐ */}
             {selectedTab === "profile" && (
-              <>
+              <div style={{ padding: "20px", textAlign: "center" }}>
                 <Profile user={user} />
-                <div style={{ marginTop: "16px", textAlign: "center" }}>
-                  <button
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "10px",
-                      background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
-                      color: "#fff",
-                      fontWeight: 600,
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                    onClick={handleCopyAddress}
-                  >
-                    Copy Address
-                  </button>
-                </div>
-              </>
+                <button
+                  style={{
+                    marginTop: "20px",
+                    padding: "12px 20px",
+                    borderRadius: "12px",
+                    background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
+                    color: "#fff",
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58"
+                    );
+                    alert("Address copied to clipboard!");
+                  }}
+                >
+                  Copy Address
+                </button>
+              </div>
             )}
           </div>
         {/* SYNC */}
