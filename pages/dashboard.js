@@ -32,9 +32,14 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const [client, setClient] = useState(false);
 
-  const [copied, setCopied] = useState(false); // Toast state
+  const [copied, setCopied] = useState(false); // Toast state for copy button
 
-  useEffect(() => { setClient(true); }, []);
+  // The address to be copied
+  const addressToCopy = "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58";
+
+  useEffect(() => {
+    setClient(true);
+  }, []);
 
   // MOBILE CHECK
   useEffect(() => {
@@ -157,7 +162,9 @@ export default function Dashboard() {
               <div style={styles.titleContainer}>
                 <h1 style={styles.mainTitle}>
                   <span style={styles.titleGradient}>Welcome</span>
-                  {username && <span style={styles.titleSymbol}> {username}</span>}
+                  {username && (
+                    <span style={styles.titleSymbol}> {username}</span>
+                  )}
                 </h1>
                 <div style={styles.titleGlow}></div>
               </div>
@@ -190,16 +197,22 @@ export default function Dashboard() {
 
             {/* ⭐ PROFILE TAB WITH COPY BUTTON & TOAST ⭐ */}
             {selectedTab === "profile" && (
-              <div style={{ position: "relative", minHeight: "200px", paddingBottom: "60px" }}>
+              <div
+                style={{
+                  position: "relative",
+                  minHeight: "200px",
+                  paddingBottom: "60px", // Add padding for the button
+                  display: "flex", // Use flexbox to align items
+                  flexDirection: "column", // Stack items vertically
+                  alignItems: "center", // Center horizontally
+                }}
+              >
                 <Profile user={user} />
 
                 {/* Copy Button */}
                 <button
                   style={{
-                    position: "absolute",
-                    bottom: "20px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    marginTop: "20px", // Adjust spacing from the profile content
                     padding: "12px 20px",
                     borderRadius: "12px",
                     background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
@@ -208,24 +221,29 @@ export default function Dashboard() {
                     border: "none",
                     cursor: "pointer",
                     zIndex: 10,
+                    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+                    transition: "all 0.3s ease",
+                    outline: "none",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.4)",
+                    },
                   }}
                   onClick={() => {
-                    navigator.clipboard.writeText(
-                      "0xC9Aa04758559DAcf7C5D9e41ed28E3595cC8ED58"
-                    );
+                    navigator.clipboard.writeText(addressToCopy);
                     setCopied(true);
-                    setTimeout(() => setCopied(false), 1500);
+                    setTimeout(() => setCopied(false), 1500); // Toast disappears after 1.5 seconds
                   }}
                 >
                   Copy Address
                 </button>
 
-                {/* Toast */}
+                {/* Toast Notification */}
                 {copied && (
                   <div
                     style={{
                       position: "absolute",
-                      bottom: "70px",
+                      bottom: "70px", // Position above the button
                       left: "50%",
                       transform: "translateX(-50%)",
                       background: "rgba(0,0,0,0.8)",
@@ -237,6 +255,8 @@ export default function Dashboard() {
                       zIndex: 11,
                       opacity: 1,
                       transition: "opacity 0.3s",
+                      textAlign: "center",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     Address copied!
@@ -245,245 +265,282 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        {/* SYNC */}
-        {fade && (
-          <div style={styles.syncIndicator}>
-            <div style={styles.pulseCircle}></div>
-            <span style={styles.syncText}>✨ Dashboard Synchronized</span>
-          </div>
-        )}
+          {/* SYNC */}
+          {fade && (
+            <div style={styles.syncIndicator}>
+              <div style={styles.pulseCircle}></div>
+              <span style={styles.syncText}>✨ Dashboard Synchronized</span>
+            </div>
+          )}
+        </div>
+
+        {/* GLOBAL FIX */}
+        <style jsx global>{`
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          html,
+          body {
+            background-color: #0a0a18 !important;
+            overflow-x: hidden;
+            font-family: Inter, sans-serif;
+          }
+
+          @keyframes starTwinkle {
+            0% {
+              opacity: 0.3;
+            }
+            50% {
+              opacity: 0.8;
+            }
+            100% {
+              opacity: 0.3;
+            }
+          }
+
+          @keyframes pulse {
+            0%,
+            100% {
+              transform: scale(1);
+              opacity: 1;
+            }
+            50% {
+              transform: scale(1.06);
+              opacity: 0.85;
+            }
+          }
+        `}</style>
       </div>
-
-      {/* GLOBAL FIX */}
-      <style jsx global>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        html,
-        body {
-          background-color: #0a0a18 !important;
-          overflow-x: hidden;
-          font-family: Inter, sans-serif;
-        }
-
-        @keyframes starTwinkle {
-          0% { opacity: 0.3; }
-          50% { opacity: 0.8; }
-          100% { opacity: 0.3; }
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.06); opacity: 0.85; }
-        }
-      `}</style>
-    </div>
-  </>
-);
+    </>
+  );
 }
 
 /* ----------------------------- POLISHED STYLES ----------------------------- */
 
 const styles = {
-loadingScreen: {
-  position: "fixed",
-  inset: 0,
-  background: "#0a0a18",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 9999,
-},
+  loadingScreen: {
+    position: "fixed",
+    inset: 0,
+    background: "#0a0a18",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
 
-wrapper: {
-  position: "relative",
-  width: "100%",
-  minHeight: "100vh",
-  overflowX: "hidden",
-  paddingTop: "env(safe-area-inset-top)",
-  paddingBottom: "env(safe-area-inset-bottom)",
-  background: `
+  wrapper: {
+    position: "relative",
+    width: "100%",
+    minHeight: "100vh",
+    overflowX: "hidden",
+    paddingTop: "env(safe-area-inset-top)",
+    paddingBottom: "env(safe-area-inset-bottom)",
+    background: `
     linear-gradient(135deg,#0a0a18,#151528,#1a1a2e),
     radial-gradient(circle at 20% 30%,rgba(139,92,246,0.1),transparent),
     radial-gradient(circle at 80% 70%,rgba(59,130,246,0.08),transparent)
   `,
-},
+  },
 
-backgroundElements: {
-  position: "fixed",
-  inset: 0,
-  width: "100%",
-  height: "100%",
-  pointerEvents: "none",
-  zIndex: 0,
-},
+  backgroundElements: {
+    position: "fixed",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    pointerEvents: "none",
+    zIndex: 0,
+  },
 
-starsContainer: {
-  position: "absolute",
-  inset: 0,
-},
+  starsContainer: {
+    position: "absolute",
+    inset: 0,
+  },
 
-star: {
-  position: "absolute",
-  background: "rgba(255,255,255,0.9)",
-  borderRadius: "50%",
-  animation: "starTwinkle 4s infinite",
-},
+  star: {
+    position: "absolute",
+    background: "rgba(255,255,255,0.9)",
+    borderRadius: "50%",
+    animation: "starTwinkle 4s infinite",
+  },
 
-glowOrb1: {
-  position: "absolute",
-  top: "15%",
-  left: "5%",
-  width: "240px",
-  height: "240px",
-  borderRadius: "50%",
-  background: "radial-gradient(circle,rgba(139,92,246,0.17),transparent 70%)",
-  filter: "blur(55px)",
-},
+  glowOrb1: {
+    position: "absolute",
+    top: "10%",
+    left: "15%",
+    width: "300px",
+    height: "300px",
+    background: "radial-gradient(circle,rgba(139,92,246,0.2),transparent 70%)",
+    borderRadius: "50%",
+    filter: "blur(80px)",
+    transform: "translate(-50%,-50%)",
+  },
+  glowOrb2: {
+    position: "absolute",
+    bottom: "20%",
+    right: "10%",
+    width: "250px",
+    height: "250px",
+    background: "radial-gradient(circle,rgba(59,130,246,0.18),transparent 70%)",
+    borderRadius: "50%",
+    filter: "blur(70px)",
+    transform: "translate(50%,50%)",
+  },
+  glowOrb3: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "400px",
+    height: "400px",
+    background:
+      "radial-gradient(circle,rgba(168,85,247,0.15),transparent 70%)",
+    borderRadius: "50%",
+    filter: "blur(90px)",
+    transform: "translate(-50%,-50%)",
+  },
+  gridOverlay: {
+    position: "absolute",
+    inset: 0,
+    backgroundImage:
+      "linear-gradient(to right,rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,0.03) 1px,transparent 1px)",
+    backgroundSize: "40px 40px",
+    opacity: 0.7,
+  },
 
-glowOrb2: {
-  position: "absolute",
-  bottom: "20%",
-  right: "5%",
-  width: "260px",
-  height: "260px",
-  borderRadius: "50%",
-  background: "radial-gradient(circle,rgba(59,130,246,0.13),transparent 70%)",
-  filter: "blur(55px)",
-},
+  page: {
+    position: "relative",
+    zIndex: 1,
+    maxWidth: "900px",
+    margin: "0 auto",
+    padding: "20px",
+    paddingBottom: "80px", // Ensure space for potential fixed elements at bottom
+  },
 
-glowOrb3: {
-  position: "absolute",
-  top: "55%",
-  left: "50%",
-  width: "260px",
-  height: "260px",
-  transform: "translate(-50%,-50%)",
-  borderRadius: "50%",
-  background: "radial-gradient(circle,rgba(16,185,129,0.12),transparent 70%)",
-  filter: "blur(50px)",
-},
+  hero: {
+    padding: "60px 0 40px",
+    textAlign: "center",
+    position: "relative",
+  },
 
-gridOverlay: {
-  position: "absolute",
-  inset: 0,
-  backgroundImage: `
-    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
-  `,
-  backgroundSize: "42px 42px",
-},
+  heroContent: {
+    position: "relative",
+    zIndex: 2,
+  },
 
-page: {
-  position: "relative",
-  zIndex: 2,
-  display: "flex",
-  flexDirection: "column",
-  gap: "20px",
-  padding: "24px 14px 40px",
-  maxWidth: "1200px",
-  margin: "0 auto",
-},
+  titleContainer: {
+    position: "relative",
+    display: "inline-block",
+    marginBottom: "10px",
+  },
 
-/* HERO */
-hero: { textAlign: "center" },
+  mainTitle: {
+    fontSize: "clamp(2.5rem, 6vw, 3.8rem)",
+    fontWeight: 800,
+    color: "#fff",
+    letterSpacing: "-0.04em",
+    position: "relative",
+    zIndex: 1,
+  },
 
-heroContent: {
-  maxWidth: "100%",
-  margin: "0 auto",
-},
+  titleGradient: {
+    background: "linear-gradient(90deg,#8b5cf6,#3b82f6)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  },
 
-titleContainer: { position: "relative", marginBottom: "12px" },
+  titleSymbol: {
+    color: "#a78bfa",
+  },
 
-mainTitle: {
-  fontSize: "clamp(2rem,7vw,3rem)",
-  fontWeight: 800,
-  background: "linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-},
+  titleGlow: {
+    position: "absolute",
+    inset: 0,
+    background: "linear-gradient(90deg,#8b5cf6,#3b82f6)",
+    filter: "blur(30px)",
+    opacity: 0.4,
+    zIndex: 0,
+  },
 
-titleSymbol: {
-  color: "rgba(255,255,255,0.9)",
-  marginLeft: "6px",
-},
+  heroSubtitle: {
+    fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
+    color: "#cbd5e1",
+    marginBottom: "30px",
+    fontWeight: 400,
+  },
 
-titleGlow: {
-  position: "absolute",
-  inset: 0,
-  background: "radial-gradient(circle,rgba(139,92,246,0.3),transparent 70%)",
-  filter: "blur(40px)",
-  zIndex: -1,
-},
+  highlight: {
+    color: "#a78bfa",
+    fontWeight: 600,
+  },
 
-heroSubtitle: {
-  color: "rgba(255,255,255,0.85)",
-  fontSize: "clamp(0.9rem,3vw,1.1rem)",
-  maxWidth: "320px",
-  margin: "4px auto 16px",
-  lineHeight: 1.4,
-},
+  headerActions: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "15px",
+    marginBottom: "40px",
+  },
 
-highlight: {
-  background: "linear-gradient(90deg,#8b5cf6,#3b82f6)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  fontWeight: 600,
-},
+  logoutBtn: {
+    background: "rgba(255,255,255,0.1)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    color: "#fff",
+    padding: "10px 20px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontSize: "1rem",
+    fontWeight: 500,
+    backdropFilter: "blur(10px)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      background: "rgba(255,255,255,0.15)",
+      borderColor: "rgba(255,255,255,0.3)",
+    },
+  },
 
-headerActions: { display: "flex", justifyContent: "center" },
+  contentBox: {
+    background: "rgba(25,25,40,0.8)",
+    borderRadius: "20px",
+    padding: "30px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+    backdropFilter: "blur(15px)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    minHeight: "400px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center", // Center content horizontally within the box
+    justifyContent: "flex-start", // Align content to the top
+  },
 
-logoutBtn: {
-  padding: "12px 20px",
-  borderRadius: "12px",
-  background: "linear-gradient(135deg,#8b5cf6,#3b82f6)",
-  color: "#fff",
-  fontWeight: 600,
-  border: "none",
-  cursor: "pointer",
-  boxShadow: "0 8px 20px rgba(139,92,246,0.28)",
-},
+  syncIndicator: {
+    position: "fixed",
+    bottom: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    display: "flex",
+    alignItems: "center",
+    background: "linear-gradient(90deg,#8b5cf6,#3b82f6)",
+    padding: "10px 20px",
+    borderRadius: "25px",
+    color: "#fff",
+    fontSize: "0.9rem",
+    fontWeight: 500,
+    boxShadow: "0 5px 20px rgba(0,0,0,0.3)",
+    animation: "pulse 1.5s infinite",
+    zIndex: 100,
+  },
 
-/* CONTENT BOX */
-contentBox: {
-  background: "rgba(10,14,22,0.94)",
-  borderRadius: "20px",
-  border: "1px solid rgba(255,255,255,0.08)",
-  boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
-  backdropFilter: "blur(15px)",
-  overflow: "hidden",
-  position: "relative",
-},
+  pulseCircle: {
+    width: "10px",
+    height: "10px",
+    borderRadius: "50%",
+    background: "#fff",
+    marginRight: "10px",
+    boxShadow: "0 0 8px #fff",
+  },
 
-/* SYNC */
-syncIndicator: {
-  position: "fixed",
-  bottom: "25px",
-  right: "20px",
-  background: "rgba(255,255,255,0.08)",
-  padding: "10px 14px",
-  borderRadius: "18px",
-  border: "1px solid rgba(255,255,255,0.15)",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  backdropFilter: "blur(14px)",
-  animation: "pulse 2s infinite",
-  zIndex: 999,
-},
-
-pulseCircle: {
-  width: "6px",
-  height: "6px",
-  borderRadius: "50%",
-  background: "#10b981",
-},
-
-syncText: {
-  fontSize: "12px",
-  color: "rgba(255,255,255,0.9)",
-  fontWeight: 500,
-},
+  syncText: {
+    position: "relative",
+    top: "1px",
+  },
 };
